@@ -3,7 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import parser from "body-parser";
 // routers
-import userRouter from "./routes/userRoutes";
+import userRouter from "./routes/userRoutes.js";
 
 dotenv.config();
 

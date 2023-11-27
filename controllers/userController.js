@@ -1,4 +1,4 @@
-import pool from "../utils/dbConnection";
+import pool from "../utils/dbConnection.js";
 import fs from "fs";
 import path from "path";
 import bcryptjs from "bcryptjs";
@@ -78,6 +78,7 @@ class UserController {
       );
     }
   }
+  
   async loginUser(req, res) {
     const { username, password, email } = req.body;
     if (!username || !password || !email) {
@@ -98,7 +99,14 @@ class UserController {
         }
         const userData = user.rows[0];
         const dbPassword = userData.password;
-        const isMatch = await bcryptjs.compare();
+        const isMatch = await bcryptjs.compare(password, dbPassword);
+        if (!isMatch) {
+        	return this._authError(res, "Incorrect password");
+        }
+        const jwtUser = {
+        	username: user.username,
+        	email: user.email
+        }
       } catch (err) {
         console.error("Error executing query:", err);
         if (err instanceof SyntaxError) {
