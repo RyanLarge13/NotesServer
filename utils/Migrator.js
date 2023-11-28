@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import pool from "../utils/dbConnection.js";
+import pool from "./dbConnection.js";
 
 const __filename = new URL(import.meta.url).pathname;
 const __dirname = path.dirname(__filename);

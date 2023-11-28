@@ -1,3 +1,4 @@
+--                                               GET REQUESTS 0 - 6                          
 -- Find a user after successful jwt authentication
 SELECT * FROM users WHERE userId = $1;
 
@@ -43,16 +44,27 @@ SELECT * FROM users
 LEFT JOIN notes ON user.userId = notes.userId
 WHERE users.userId = $1;
 
--- Update an authenticated user
+--                                                  CREATE REQUESTS 7
+-- Create a new user on signin and return jwt signing and basic user information for a client response
+INSERT INTO users (username, email, password) 
+VALUES ($1, $2, $3)
+RETURNING userId, username, email, createdAt
+
+--                                                  UPDATE REQUESTS 8 - 9
+-- Update an authenticated user username and email and return a jwt signable object
 UPDATE users
 SET username = $2, email = $3
-WHERE userId = $1;
+WHERE userId = $1
+RETURNING userId, username, email, createdAt;
 
--- Update users password
+-- Update users password and returning updated user for server use only. Not for signing or updating client
 UPDATE users
 SET password = $2
-WHERE userId = $1;
+WHERE userId = $1
+RETURNING *;
 
+--                                                  DELETE REQUESTS 10
 -- Delete an authenticated user
 DELETE FROM users
-WHERE userId = $1;
+WHERE userId = $1
+RETURNING *;
