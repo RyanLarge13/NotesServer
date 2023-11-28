@@ -1,4 +1,4 @@
---                                               GET REQUESTS 0 - 6                          
+--                                               GET REQUESTS 0 - 6
 -- Find a user after successful jwt authentication
 SELECT * FROM users WHERE userId = $1;
 
@@ -13,16 +13,21 @@ WHERE users.userId: $1
 
 -- Find a user and return all of the user information for jwt signing (exclude password) but still include a user's folders and notes
 SELECT
-users.userId,
-users.username,
-users.email,
-users.createdAt,
-folders.*,
-notes.*
-LEFT JOIN folders ON users.userId = folders.userId
-LEFT JOIN notes ON folders.folderId = notes.folderId
-FROM users
-WHERE users.userId: $1
+    users.userId,
+    users.username,
+    users.email,
+    users.createdAt,
+    folders.*,
+    notes.*
+FROM
+    users
+LEFT JOIN
+    folders ON users.userId = folders.userId
+LEFT JOIN
+    notes ON folders.folderId = notes.folderId
+WHERE
+    users.userId = $1;
+
 
 --  Find a user by traditional form login after expired jwt authentication or first time login
 SELECT * FROM users
@@ -46,7 +51,7 @@ WHERE users.userId = $1;
 
 --                                                  CREATE REQUESTS 7
 -- Create a new user on signin and return jwt signing and basic user information for a client response
-INSERT INTO users (username, email, password) 
+INSERT INTO users (username, email, password)
 VALUES ($1, $2, $3)
 RETURNING userId, username, email, createdAt
 
@@ -68,3 +73,48 @@ RETURNING *;
 DELETE FROM users
 WHERE userId = $1
 RETURNING *;
+
+--        ULTIMATE USER DATA QUERY
+-- Fetch a user and all related fields for proper nesting and structuring of the users information including folders subfolders and notes
+WITH RECURSIVE FolderHierarchy AS (
+	SELECT
+	folderId,
+	title,
+	color,
+	userId,
+	NULL::INT AS parentFolderId
+	FROM folders
+	WHERE userId = $1 AND parentFolderId IS NULL
+
+	UNION ALL
+
+	SELECT
+	f.folderId,
+	f.title,
+	f.color,
+	f.userId,
+	f.parentFolderId
+	FROM
+	folders f
+	JOIN
+	FolderHierarchy fh ON f.parentFolderId = fh.folderId
+)
+SELECT
+u.userId,
+u.username,
+u.email,
+fh.folderId,
+fh.title AS folderTitle,
+fh.color AS folderColor,
+nh.id AS noteId,
+nh.title AS noteTitle,
+nh.createdAt AS noteCreatedAt,
+nh.htmlNotes
+FROM
+users u
+JOIN
+FolderHierarchy fh ON u.userId = fh.userId
+LEFT JOIN
+notes nh ON fh.folderId = nh.folderId
+ORDER BY
+fh.folderId, nh.createdAt;

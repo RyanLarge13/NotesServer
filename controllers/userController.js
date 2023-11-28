@@ -18,6 +18,25 @@ class UserController {
   // Private contructor methods specific for this class,
   // indicated by the "_" underscore character at the start of the method name
   constructor() {
+    // Structuring user data function
+    this._structureData = (userData) => {
+      let organizedData = {};
+      return console.log(userData)
+      userData.forEach((row) => {
+        const {
+          userId,
+          username,
+          email,
+          createdAt,
+          folderId,
+          title,
+          color,
+          parentFolderId,
+          notesId,
+          htmlNotes,
+        } = row;
+      });
+    };
     this._connectionError = (res, err, controllerCall) => {
       console.error(
         `Error with pool connection when calling userController.${controllerCall}: ${err}`
@@ -53,14 +72,14 @@ class UserController {
     try {
       const userClient = await pool.connect();
       try {
-        const user = await userClient.query(userQueries[0], [userId]);
+        const user = await userClient.query(userQueries[3], [userId]);
         if (user.rows.length === 0) {
           return resHandler.notFoundError(
             res,
             "No user was found in out records with your credentials, please try to login again"
           );
         }
-        const userData = user.rows[0];
+        const userData = this.structureData(user.rows);
         return resHandler.successResponse(
           res,
           "Successfully fetched users information",
