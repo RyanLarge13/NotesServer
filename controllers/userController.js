@@ -20,9 +20,9 @@ class UserController {
   constructor() {
     // Structuring user data function
     this._structureData = (userData) => {
-      let organizedData = {};
-      return console.log(userData)
-      userData.forEach((row) => {
+      const organizedData = {};
+
+      rawData.forEach((row) => {
         const {
           userId,
           username,
@@ -32,10 +32,13 @@ class UserController {
           title,
           color,
           parentFolderId,
-          notesId,
-          htmlNotes,
+          noteId,
+          noteTitle,
+          htmlText,
         } = row;
       });
+
+      return organizedData;
     };
     this._connectionError = (res, err, controllerCall) => {
       console.error(
@@ -72,7 +75,7 @@ class UserController {
     try {
       const userClient = await pool.connect();
       try {
-        const user = await userClient.query(userQueries[3], [userId]);
+        const user = await userClient.query(userQueries[2], [userId]);
         if (user.rows.length === 0) {
           return resHandler.notFoundError(
             res,

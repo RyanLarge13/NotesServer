@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import ResponseHandler from "../utils/ResponseHandler";
+import ResponseHandler from "../utils/ResponseHandler.js";
 
 const resHandler = new ResponseHandler();
 

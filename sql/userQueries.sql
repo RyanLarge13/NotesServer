@@ -4,12 +4,14 @@ SELECT * FROM users WHERE userId = $1;
 
 -- Find a user and return jwt token signing information (don't return password)
 SELECT
-users.userId,
-users.username,
-users.email,
-users.createdAt
-FROM users
-WHERE users.userId: $1
+	users.userId,
+	users.username,
+	users.email,
+	users.createdAt
+FROM 
+	users
+WHERE 
+	users.userId: $1;
 
 -- Find a user and return all of the user information for jwt signing (exclude password) but still include a user's folders and notes
 SELECT
@@ -17,8 +19,10 @@ SELECT
     users.username,
     users.email,
     users.createdAt,
-    folders.*,
-    notes.*
+    folders.title AS folderTitle,
+    notes.title AS notesTitle,
+	notes.folderId AS noteFolderId
+	notes.createdAt AS noteCreatedAt
 FROM
     users
 LEFT JOIN
