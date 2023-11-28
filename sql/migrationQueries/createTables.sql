@@ -19,7 +19,9 @@ CREATE TABLE IF NOT EXISTS folders (
 	title VARCHAR(255) NOT NULL,
 	color VARCHAR(20) NOT NULL,
 	userId INT NOT NULL,
+-- ADD COLUMN parentFolderId INT,
 	FOREIGN KEY (userId) REFERENCES users(userId)
+-- ADD FOREIGN KEY (parentFolderId) REFERENCES folders(folderId); 
 );
 
 CREATE TABLE IF NOT EXISTS notes (
@@ -28,7 +30,9 @@ CREATE TABLE IF NOT EXISTS notes (
 	createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	htmlNotes TEXT,
 	userId INT NOT NULL,
+-- ADD COLUMN folderId INT,
 	FOREIGN KEY (userId) REFERENCES users(userId)
+-- ADD FOREIGN KEY (folderId) REFERENCES folders(folderId);
 );
 
 
