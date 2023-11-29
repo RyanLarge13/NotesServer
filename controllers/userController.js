@@ -19,10 +19,21 @@ class UserController {
   // indicated by the "_" underscore character at the start of the method name
   constructor() {
     // Structuring user data function
+    this._findFolder = (folders, folderId) => {
+      for (const folder in folders) {
+        if (folder.folderId === folderId) {
+          return folder;
+        }
+        const nestedFolder = this._findFolder(folder.folders, folderId);
+        if (nestedFolder) {
+          return nestedFolder;
+        }
+      }
+      return null;
+    };
     this._structureData = (userData) => {
       const organizedData = {};
-
-      rawData.forEach((row) => {
+      userData.forEach((row) => {
         const {
           userId,
           username,
@@ -32,12 +43,52 @@ class UserController {
           title,
           color,
           parentFolderId,
+          noteFolderId,
           noteId,
           noteTitle,
           htmlText,
         } = row;
+        if (!organizedData[userId]) {
+          organizedData[userId] = {
+            userId,
+            username,
+            email,
+            createdAt,
+            folders: [],
+          };
+        }
+        const userFolders = organizedData[userId].folders;
+        if (!parentFolderId) {
+          userFolders.push({
+            folderId,
+            title,
+            color,
+            folders: [],
+            notes: [],
+          });
+        }
+        if (parentFolderId) {
+          const parentFolder = _findFolder(userFolders, parentFolderId);
+          if (parentFolder) {
+            parentFolder.folders.push({
+              folderId,
+              title,
+              color,
+              folders: [],
+              notes: [],
+            });
+          }
+        }
+        if (noteFolderId) {
+          const parentFolder = _findFolder(userFolders, noteFolderId);
+          parentFolder.notes.push({
+            noteId,
+            noteFolderId,
+            noteTitle,
+            htmlText,
+          });
+        }
       });
-
       return organizedData;
     };
     this._connectionError = (res, err, controllerCall) => {

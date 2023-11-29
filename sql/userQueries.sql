@@ -78,47 +78,47 @@ DELETE FROM users
 WHERE userId = $1
 RETURNING *;
 
---        ULTIMATE USER DATA QUERY
+--                                                ULTIMATE USER DATA QUERY
 -- Fetch a user and all related fields for proper nesting and structuring of the users information including folders subfolders and notes
 WITH RECURSIVE FolderHierarchy AS (
-	SELECT
+SELECT
 	folderId,
 	title,
 	color,
 	userId,
-	NULL::INT AS parentFolderId
-	FROM folders
-	WHERE userId = $1 AND parentFolderId IS NULL
+NULL::INT AS parentFolderId
+FROM folders
+WHERE userId = $1 AND parentFolderId IS NULL
 
-	UNION ALL
+UNION ALL
 
-	SELECT
+SELECT
 	f.folderId,
 	f.title,
 	f.color,
 	f.userId,
 	f.parentFolderId
-	FROM
+FROM
 	folders f
-	JOIN
+JOIN
 	FolderHierarchy fh ON f.parentFolderId = fh.folderId
 )
 SELECT
-u.userId,
-u.username,
-u.email,
-fh.folderId,
-fh.title AS folderTitle,
-fh.color AS folderColor,
-nh.id AS noteId,
-nh.title AS noteTitle,
-nh.createdAt AS noteCreatedAt,
-nh.htmlNotes
+	u.userId,
+	u.username,
+	u.email,
+	fh.folderId,
+	fh.title AS folderTitle,
+	fh.color AS folderColor,
+	nh.id AS noteId,
+	nh.title AS noteTitle,
+	nh.createdAt AS noteCreatedAt,
+	nh.htmlNotes
 FROM
-users u
+	users u
 JOIN
-FolderHierarchy fh ON u.userId = fh.userId
+	FolderHierarchy fh ON u.userId = fh.userId
 LEFT JOIN
-notes nh ON fh.folderId = nh.folderId
+	notes nh ON fh.folderId = nh.folderId
 ORDER BY
-fh.folderId, nh.createdAt;
+	fh.folderId, nh.createdAt;
