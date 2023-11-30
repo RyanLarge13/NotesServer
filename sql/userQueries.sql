@@ -11,7 +11,7 @@ SELECT
 FROM 
 	users
 WHERE 
-	users.userId: $1;
+	users.userId = $1;
 
 -- Find a user and return all of the user information for jwt signing (exclude password) but still include a user's folders and notes
 SELECT
@@ -19,10 +19,14 @@ SELECT
     users.username,
     users.email,
     users.createdAt,
+    folders.folderId AS folderId, 
+    folders.color AS folderColor,
     folders.title AS folderTitle,
-    notes.title AS notesTitle,
-	notes.folderId AS noteFolderId
-	notes.createdAt AS noteCreatedAt
+    folders.parentFolderId AS parentFolderId, 
+    notes.title AS noteTitle,
+    notes.htmlNotes AS htmlText,
+  	notes.folderId AS noteFolderId,
+  	notes.createdAt AS noteCreatedAt
 FROM
     users
 LEFT JOIN
@@ -30,7 +34,9 @@ LEFT JOIN
 LEFT JOIN
     notes ON folders.folderId = notes.folderId
 WHERE
-    users.userId = $1;
+    users.userId = $1
+ORDER BY 
+    folders.parentFolderId IS NOT NULL, folders.parentFolderId, folders.folderId;
 
 
 --  Find a user by traditional form login after expired jwt authentication or first time login
@@ -57,13 +63,16 @@ WHERE users.userId = $1;
 -- Create a new user on signin and return jwt signing and basic user information for a client response
 INSERT INTO users (username, email, password)
 VALUES ($1, $2, $3)
-RETURNING userId, username, email, createdAt
+RETURNING userId, username, email, createdAt;
 
 --                                                  UPDATE REQUESTS 8 - 9
 -- Update an authenticated user username and email and return a jwt signable object
 UPDATE users
-SET username = $2, email = $3
-WHERE userId = $1
+SET 
+    username = COALESCE($2, username), 
+    email = COALESCE($3, email)
+WHERE 
+    userId = $1
 RETURNING userId, username, email, createdAt;
 
 -- Update users password and returning updated user for server use only. Not for signing or updating client
@@ -72,7 +81,7 @@ SET password = $2
 WHERE userId = $1
 RETURNING *;
 
---                                                  DELETE REQUESTS 10
+--                                                  DELETE REQUESTS 10 - 11
 -- Delete an authenticated user
 DELETE FROM users
 WHERE userId = $1

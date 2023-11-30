@@ -4,8 +4,10 @@ import path from "path";
 import bcryptjs from "bcryptjs";
 import signUser from "../auth/signUser.js";
 import ResponseHandler from "../utils/ResponseHandler.js";
+import FormatData from "../utils/FormatData.js";
 
 const resHandler = new ResponseHandler();
+const formatter = new FormatData();
 
 const __filename = new URL(import.meta.url).pathname;
 const __dirname = path.dirname(__filename);
@@ -15,108 +17,8 @@ const userQueriesPath = path.join(__dirname, "../sql/userQueries.sql");
 const userQueries = fs.readFileSync(userQueriesPath, "utf-8").split(";");
 
 class UserController {
-  // Private contructor methods specific for this class,
-  // indicated by the "_" underscore character at the start of the method name
-  constructor() {
-    // Structuring user data function
-    this._findFolder = (folders, folderId) => {
-      for (const folder in folders) {
-        if (folder.folderId === folderId) {
-          return folder;
-        }
-        const nestedFolder = this._findFolder(folder.folders, folderId);
-        if (nestedFolder) {
-          return nestedFolder;
-        }
-      }
-      return null;
-    };
-    this._structureData = (userData) => {
-      const organizedData = {};
-      userData.forEach((row) => {
-        const {
-          userId,
-          username,
-          email,
-          createdAt,
-          folderId,
-          title,
-          color,
-          parentFolderId,
-          noteFolderId,
-          noteId,
-          noteTitle,
-          htmlText,
-        } = row;
-        if (!organizedData[userId]) {
-          organizedData[userId] = {
-            userId,
-            username,
-            email,
-            createdAt,
-            folders: [],
-          };
-        }
-        const userFolders = organizedData[userId].folders;
-        if (!parentFolderId) {
-          userFolders.push({
-            folderId,
-            title,
-            color,
-            folders: [],
-            notes: [],
-          });
-        }
-        if (parentFolderId) {
-          const parentFolder = _findFolder(userFolders, parentFolderId);
-          if (parentFolder) {
-            parentFolder.folders.push({
-              folderId,
-              title,
-              color,
-              folders: [],
-              notes: [],
-            });
-          }
-        }
-        if (noteFolderId) {
-          const parentFolder = _findFolder(userFolders, noteFolderId);
-          parentFolder.notes.push({
-            noteId,
-            noteFolderId,
-            noteTitle,
-            htmlText,
-          });
-        }
-      });
-      return organizedData;
-    };
-    this._connectionError = (res, err, controllerCall) => {
-      console.error(
-        `Error with pool connection when calling userController.${controllerCall}: ${err}`
-      );
-      return resHandler.serverError(
-        res,
-        "There was an issue connecting to the db. Please try to refresh the page and attempt to login again"
-      );
-    };
-    this._executingQueryError = (res, err) => {
-      console.error("Error executing query:", err);
-      if (err instanceof SyntaxError) {
-        return resHandler.serverError(res, "Syntax error in SQL query");
-      } else if (err.code === "ECONNREFUSED") {
-        return resHandler.serverError(
-          res,
-          "Connection to the database refused"
-        );
-      } else {
-        return resHandler.serverError(res, "Internal server error");
-      }
-    };
-  }
-
   async getUserData(req, res) {
-    const userId = req.user;
+    const { userId } = req.user;
     if (!userId) {
       return resHandler.authError(
         res,
@@ -133,17 +35,17 @@ class UserController {
             "No user was found in out records with your credentials, please try to login again"
           );
         }
-        const userData = this.structureData(user.rows);
+        const userData = formatter.toObject(user.rows);
         return resHandler.successResponse(
           res,
           "Successfully fetched users information",
           userData
         );
       } catch (err) {
-        return this._executingQueryError(res, err);
+        return resHandler.executingQueryError(res, err);
       }
     } catch (err) {
-      return this._connectionError(res, err, "getUserData");
+      return resHandler.connectionError(res, err, "getUserData");
     }
   }
 
@@ -167,27 +69,32 @@ class UserController {
           );
         }
         const userData = user.rows[0];
+        console.log(userData);
         const dbPassword = userData.password;
         const isMatch = await bcryptjs.compare(password, dbPassword);
         if (!isMatch) {
           return resHandler.authError(res, "Incorrect password");
         }
         const jwtUser = {
-          username: user.username,
-          email: user.email,
-          createdAt: user.createdAt,
+          userId: userData.userid,
+          username: userData.username,
+          email: userData.email,
+          createdAt: userData.createdat,
         };
+        console.log(jwtUser);
         const token = signUser(jwtUser);
+        console.log(token);
         return resHandler.successResponse(res, token);
       } catch (err) {
-        return this._executingQueryError(res, err);
+        return resHandler.executingQueryError(res, err);
       }
     } catch (err) {
-      return this._connectionError(res, err, "loginUser");
+      return resHandler.connectionError(res, err, "loginUser");
     }
   }
 
   async signupUser(req, res) {
+    console.log(req.body);
     const { username, email, password } = req.body;
     if (!username || !email || !password) {
       return resHandler.badRequesstError(
@@ -226,10 +133,12 @@ class UserController {
           newToken
         );
       } catch (err) {
-        return this._executingQueryError(res, err);
+        console.log(err);
+        return resHandler.executingQueryError(res, err);
       }
     } catch (err) {
-      return this._connectionError(res, err, "signupUser");
+      console.log(err);
+      return resHandler.connectionError(res, err, "signupUser");
     }
   }
 
@@ -265,10 +174,10 @@ class UserController {
           { token: newlySignedToken, user: newUpdatedUser }
         );
       } catch (err) {
-        return this._executingQueryError(res, err);
+        return resHandler.executingQueryError(res, err);
       }
     } catch (err) {
-      return this._connectionError(res, err, "updateUser");
+      return resHandler.connectionError(res, err, "updateUser");
     }
   }
 
@@ -314,10 +223,10 @@ class UserController {
           null
         );
       } catch (err) {
-        return this._executingQueryError(res, err);
+        return resHandler.executingQueryError(res, err);
       }
     } catch (err) {
-      return this._connectionError(res, err, "updateUserPassword");
+      return resHandler.connectionError(res, err, "updateUserPassword");
     }
   }
 
@@ -333,7 +242,9 @@ class UserController {
       const deleteUserClient = await pool.connect();
       try {
         const deleteUserQuery = userQueries[10];
-        const deletedUser = await deleteUserClient(deleteUserQuery, [userId]);
+        const deletedUser = await deleteUserClient.query(deleteUserQuery, [
+          userId,
+        ]);
         if (deletedUser.rows < 1) {
           return resHandler.serverError(
             res,
@@ -342,14 +253,14 @@ class UserController {
         }
         return resHandler.successResponse(
           res,
-          "You account was successfully deleted",
+          "Your account was successfully deleted",
           null
         );
       } catch (err) {
-        return this._executingQueryError(res, err);
+        return resHandler.executingQueryError(res, err);
       }
     } catch (err) {
-      return this._connectionError(res, err, "updateUserPassword");
+      return resHandler.connectionError(res, err, "updateUserPassword");
     }
   }
 }

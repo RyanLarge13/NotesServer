@@ -11,8 +11,9 @@ class Migrator {
     const client = await pool.connect();
     console.log("Connection opened");
     try {
-      await client.query(queries);
+      const data = await client.query(queries);
       console.log("Query executed");
+      console.log(data);
     } catch (err) {
       console.log(err);
     } finally {

@@ -1,7 +1,10 @@
+-- All table comments indicate updates to the table. 
+
 CREATE TABLE IF NOT EXISTS users (
 	userId SERIAL PRIMARY KEY,
 	username VARCHAR(255) NOT NULL,
 	email VARCHAR(40) NOT NULL,
+	-- password VARCHAR(255) NOT NULL
 	password VARCHAR(20) NOT NULL,
 	createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -21,7 +24,7 @@ CREATE TABLE IF NOT EXISTS folders (
 	userId INT NOT NULL,
 -- ADD COLUMN parentFolderId INT,
 	FOREIGN KEY (userId) REFERENCES users(userId)
--- ADD FOREIGN KEY (parentFolderId) REFERENCES folders(folderId); 
+-- ADD FOREIGN KEY (parentFolderId) REFERENCES folders(folderId) ON DELETE CASCADE;
 );
 
 CREATE TABLE IF NOT EXISTS notes (
@@ -34,7 +37,7 @@ CREATE TABLE IF NOT EXISTS notes (
 	userId INT NOT NULL,
 -- ADD COLUMN folderId INT,
 	FOREIGN KEY (userId) REFERENCES users(userId)
--- ADD FOREIGN KEY (folderId) REFERENCES folders(folderId);
+-- ADD FOREIGN KEY (folderId) REFERENCES folders(folderId) ON DELETE CASCADE;
 );
 
 

@@ -1,5 +1,7 @@
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv"
 import ResponseHandler from "../utils/ResponseHandler.js";
+dotenv.config()
 
 const resHandler = new ResponseHandler();
 
