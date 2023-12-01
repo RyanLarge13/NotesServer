@@ -16,8 +16,8 @@ SELECT * FROM folders
 WHERE userId = $1 AND LIKE $2;
 
 -- Create a new folder 
-INSERT INTO folders (title, color, parentFolderId)
-VALUES ($1, $2, $3)
+INSERT INTO folders (userId, title, color, parentFolderId)
+VALUES ($1, $2, $3, $4)
 RETURNING *;
 
 -- Edit a folder
@@ -34,12 +34,12 @@ RETURNING *;
 
 -- Delete a folder
 DELETE FROM folders
-WHERE userId = $1
+WHERE userId = $1 AND folderId = $2
 RETURNING title;
 
 -- Delete a folder and store return the entire folder if the user wants to undo his changes from the frontend
 DELETE FROM folders
-WHERE userId = $1
+WHERE userId = $1 AND folderId = $2
 RETURNING *;
 
 DELETE FROM folders

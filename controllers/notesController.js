@@ -51,8 +51,7 @@ class notesController {
       validator.validateHtml(htmlNotes),
       validator.validateId(folderId),
     ];
-    // const allValidInputs = validArray.every((bool) => bool.valid === true);
-    const allValid = Validator.validateArray(validArray);
+    const allValid = validator.validateArray(validArray);
     if (!userId) {
       return resHandler.authError(
         res,
@@ -60,10 +59,7 @@ class notesController {
       );
     }
     if (!allValid.valid) {
-      return resHandler.badRequestError(
-        res,
-        `Please input correct values for creating a note. ${allValid.data} is not a valid input`
-      );
+      return resHandler.badRequestError(res, allValid.error);
     }
     try {
       const notesClient = await pool.connect();
@@ -107,10 +103,7 @@ class notesController {
       );
     }
     if (!allValid.valid) {
-      return resHandler.badRequestError(
-        res,
-        `Please send valid data to update your note. ${allValid.data} is not a valid field`
-      );
+      return resHandler.badRequestError(res, allValid.error);
     }
   }
 
@@ -125,10 +118,7 @@ class notesController {
     }
     const validId = validator.validateId(noteId);
     if (!noteId || !validId) {
-      return resHandler.badRequestError(
-        res,
-        "Please specify what note you would like to delete"
-      );
+      return resHandler.badRequestError(res, validId.error);
     }
     try {
       const notesClient = await pool.connect();

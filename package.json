@@ -7,7 +7,6 @@
     "express": "^4.18.2",
     "jsdom": "^23.0.1",
     "jsonwebtoken": "^9.0.2",
-    "nodemon": "^3.0.1",
     "pg": "^8.11.3"
   },
   "scripts": {
@@ -20,5 +19,8 @@
   "description": "Rest API for notes desktop application",
   "main": "server.js",
   "author": "Ryan Large",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
 }
