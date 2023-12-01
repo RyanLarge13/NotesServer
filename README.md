@@ -19,13 +19,14 @@ This application takes advantage of
 
 ### Multi Paradigm
 
-The server is designed with a mixture of both functional and object oriented style code.
+The server is designed with a mixture of both functional and object oriented styled code.
 
 Repetitive tasks with related functionality live within their own classes and build an easy to use and easy to understand abstraction to allow you to worry more about the logical steps of a process then validating or exception handling for example.
 
 ### Modularized
 
-The server, routes, and controllers and all seperated into their own directories for orginization. Raw SQL was used and also modularize into its own folders. SQL queries and SQL migrations
+The server, routes, and controllers are all seperated into their own directories for orginization. Raw SQL was used and also modularize into their own folders. 
+Eg. SQL queries and SQL migrations
 
 ### Functional
 
@@ -67,6 +68,11 @@ export default pool;
 ```
 npm run dev
 ```
+
+## API docs
+
+Run through the api documentation here to get an idea of how to use this server and what data looks like being returned from the api
+[API Docs](./API_DOCS.md)
 
 ## Contributing
 
