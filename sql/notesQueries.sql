@@ -24,14 +24,14 @@ RETURNING *;
 
 -- Edit a note
 UPDATE notes
-SET title = $2, htmlNotes = $3
-WHERE userId = $1
+SET title = $3, htmlNotes = $4
+WHERE userId = $1 AND notesId = $2
 RETURNING *;
 
 -- Update note position
 UPDATE notes
-SET folderId = $2
-WHERE userId = $1
+SET folderId = $3
+WHERE userId = $1 AND notesId = $2
 RETURNING *;
 
 -- Delete a note

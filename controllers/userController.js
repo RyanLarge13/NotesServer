@@ -52,7 +52,7 @@ class UserController {
   async loginUser(req, res) {
     const { username, password, email } = req.body;
     if (!username || !password || !email) {
-      return resHandler.badRequesstError(
+      return resHandler.badRequestError(
         res,
         "Please complete all form data with valid credentials"
       );
@@ -97,7 +97,7 @@ class UserController {
     console.log(req.body);
     const { username, email, password } = req.body;
     if (!username || !email || !password) {
-      return resHandler.badRequesstError(
+      return resHandler.badRequestError(
         res,
         "You must fill out all form data to create a new account"
       );
@@ -146,7 +146,7 @@ class UserController {
     const { newUsername, newEmail } = req.body;
     const { userId } = req.user;
     if (!newUsername && !newEmail) {
-      return resHandler.badRequesstError(
+      return resHandler.badRequestError(
         res,
         "You did not provide an updated username or email. Please change at least one field to complete your update"
       );
@@ -185,7 +185,7 @@ class UserController {
     const { newPassword } = req.body;
     const { userId } = req.user;
     if (!newPassword) {
-      return resHandler.badRequesstError(
+      return resHandler.badRequestError(
         res,
         "Please provide a new password to update your account"
       );
