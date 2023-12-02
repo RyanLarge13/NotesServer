@@ -83,8 +83,7 @@ class UserController {
         };
         console.log(jwtUser);
         const token = signUser(jwtUser);
-        console.log(token);
-        return resHandler.successResponse(res, token);
+        return resHandler.successResponse(res, "You were successfully authenticated and are now logged in", token);
       } catch (err) {
         return resHandler.executingQueryError(res, err);
       }
