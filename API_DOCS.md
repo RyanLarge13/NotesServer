@@ -16,10 +16,10 @@ All requests sent to the backend require data within the body of a request and a
 
 ## User routes
 
-All user routes begin with **"users/"**
+All user routes begin with **users/**
 example
 
-**"https://my-app/users/\*"**
+**https://my-app/users/\***
 
 ### PATCH & POST
 
@@ -49,8 +49,8 @@ this example will create a new user with the provided information and return a J
 
 ```
 {
-  message: "Successfully created your new account",
-	data: "JsjshdkJwgd35827_8qi190sSHJ...."
+  	message: "Successfully created your new account",
+  	data: "JsjshdkJwgd35827_8qi190sSHJ...."
 }
 ```
 
@@ -66,9 +66,9 @@ this example will create a new user with the provided information and return a J
 const login = (userData) => {
   const { username, email, password } = userData;
 	const res = Axios.post(`${productionUrl}/users/login`, {
-	  username,
-	  email,
-	  password
+		username,
+		email,
+		password
 	});
 	return res;
 }
@@ -80,7 +80,7 @@ This route will login a user given they provided data for each userData field an
 
 ```
 {
-  message: "You were successfully authenticated and are now logged in",
+  	message: "You were successfully authenticated and are now logged in",
 	data: "JsjshdkJwgd35827_8qi190sSHJ...."
 }
 ```
@@ -116,13 +116,13 @@ This route will update the given username and email. Both username and email mus
  {
   message: "Your account was successfully updated",
  	data: {
-  	token: "ke8w2uehJeuwkKjHHHNRK002...",
- 		user: {
-	 		userId,
-	 		username,
-	 		email,
-	 		createdAt
- 		}
+		token: "ke8w2uehJeuwkKjHHHNRK002...",
+		user: {
+			userId,
+			username,
+			email,
+			createdAt
+		}
  	}
  }
 ```
@@ -144,7 +144,7 @@ const getUserData = (token) => {
 	const res = Axios.post(`${productionUrl}/users/data`, {
 	  headers: {
 		  Authorization: `Bearer ${token}`
-  	}
+  	    }
 	});
 	return res;
 }
@@ -215,7 +215,7 @@ const deleteUser = (token) => {
 	const res = Axios.post(`${productionUrl}/users/delete`, {
 	  headers: {
 		  Authorization: `Bearer ${token}`
-  	}
+  		}
 	});
 	return res;
 }
@@ -232,14 +232,14 @@ This query will delete your account completely and all of the data associated wi
 }
 ```
 
-___
+---
 
 ## Note routes
 
-All notes routes begin with **"notes/"**
+All notes routes begin with **notes/**
 example
 
-**"https://my-app/notes/\*"**
+**https://my-app/notes/\***
 
 ### PATCH & POST
 

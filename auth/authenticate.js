@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv"
+import dotenv from "dotenv";
 import ResponseHandler from "../utils/ResponseHandler.js";
-dotenv.config()
+dotenv.config();
 
 const resHandler = new ResponseHandler();
 
@@ -13,7 +13,7 @@ const auth = (req, res, next) => {
       res,
       "You are not authorized, Please login again"
     );
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+  jwt.verify(token, process.env.JWT_TOKEN, (err, user) => {
     if (err) {
       return resHandler.authError(
         res,

@@ -46,6 +46,10 @@ class UserController {
       }
     } catch (err) {
       return resHandler.connectionError(res, err, "getUserData");
+    } finally {
+      if (userClient) {
+        userClient.release();
+      }
     }
   }
 
@@ -65,7 +69,7 @@ class UserController {
         if (user.rows.length === 0) {
           return resHandler.notFoundError(
             res,
-            "No user with these credentials was found with that username and email were found, Please try to login agains"
+            "No user with these credentials was found with the username and email that were provided, Please try to login agains"
           );
         }
         const userData = user.rows[0];
@@ -83,12 +87,20 @@ class UserController {
         };
         console.log(jwtUser);
         const token = signUser(jwtUser);
-        return resHandler.successResponse(res, "You were successfully authenticated and are now logged in", token);
+        return resHandler.successResponse(
+          res,
+          "You were successfully authenticated and are now logged in",
+          token
+        );
       } catch (err) {
         return resHandler.executingQueryError(res, err);
       }
     } catch (err) {
       return resHandler.connectionError(res, err, "loginUser");
+    } finally {
+      if (userClient) {
+        userClient.release();
+      }
     }
   }
 
@@ -104,6 +116,13 @@ class UserController {
     try {
       const userClient = await pool.connect();
       try {
+        const exsistingUser = await userClient.query(userQueries[12], [email]);
+        if (exsistingUser.rows.length > 0) {
+          return resHandler.badRequestError(
+            res,
+            "A user with your email already currently exists"
+          );
+        }
         const hashedPassword = await bcryptjs.hash(password, 10);
         if (!hashedPassword) {
           return resHandler.serverError(
@@ -138,6 +157,10 @@ class UserController {
     } catch (err) {
       console.log(err);
       return resHandler.connectionError(res, err, "signupUser");
+    } finally {
+      if (userClient) {
+        userClient.release();
+      }
     }
   }
 
@@ -177,6 +200,10 @@ class UserController {
       }
     } catch (err) {
       return resHandler.connectionError(res, err, "updateUser");
+    } finally {
+      if (updateUserClient) {
+        updateUserClient.release();
+      }
     }
   }
 
@@ -226,6 +253,10 @@ class UserController {
       }
     } catch (err) {
       return resHandler.connectionError(res, err, "updateUserPassword");
+    } finally {
+      if (updateUserPassClient) {
+        updateUserPassClient.release();
+      }
     }
   }
 
@@ -260,6 +291,10 @@ class UserController {
       }
     } catch (err) {
       return resHandler.connectionError(res, err, "updateUserPassword");
+    } finally {
+      if (deleteUserClient) {
+        deleteUserClient.release();
+      }
     }
   }
 }

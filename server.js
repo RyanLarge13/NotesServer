@@ -4,12 +4,12 @@ import dotenv from "dotenv";
 import parser from "body-parser";
 // routers
 import userRouter from "./routes/userRoutes.js";
-import notesRouter from "./routes/notesRoutes.js";
-import foldersRouter from "./routes/foldersRoutes.js";
+import notesRouter from "./routes/notesRouter.js";
+import foldersRouter from "./routes/foldersRouter.js";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.DEPLOYMENT === "dev" ? 8080 : 8080;
+const PORT = process.env.DEPLOYMENT === "dev" ? 8081 : 8081;
 
 app.use(cors());
 app.use(parser.json());

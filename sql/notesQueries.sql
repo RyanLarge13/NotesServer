@@ -17,9 +17,9 @@ ORDER BY createdAt ASC;
 SELECT * FROM notes
 WHERE userId = $1 AND LIKE $2;
 
--- Create a new folder 
-INSERT INTO notes (title, htmlNotes, folderId)
-VALUES ($1, $2, $3)
+-- Create a new note 
+INSERT INTO notes (userId, title, htmlNotes, folderId)
+VALUES ($1, $2, $3, $4)
 RETURNING *;
 
 -- Edit a note

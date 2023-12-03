@@ -1,4 +1,5 @@
-import JSDOM from "jsdom";
+import jsdom from "jsdom";
+const { JSDOM } = jsdom;
 
 class Validator {
   validateHtml(html) {
@@ -16,7 +17,7 @@ class Validator {
   }
 
   validateUsername(username) {
-    if (typeof username !== string) {
+    if (typeof username !== "string") {
       const type = typeof username;
       return {
         valid: false,
@@ -38,13 +39,12 @@ class Validator {
         error: `Your password must be more than 8 characters and less then 20, your password was ${username.length} characters long`,
       };
     }
-    return {valid: true} 
+    return { valid: true };
   }
 
   validateEmail(email) {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!isValid) {
-      const type = typeof email;
+    if (!emailRegex.test(email)) {
       return {
         valid: false,
         text: email,
@@ -55,7 +55,7 @@ class Validator {
   }
 
   validatePassword(password) {
-    if (typeof password !== string) {
+    if (typeof password !== "string") {
       const type = typeof password;
       return {
         valid: false,
@@ -83,8 +83,8 @@ class Validator {
   }
 
   validateString(text) {
-    if (typeof text !== string) {
-      const type = typeof string;
+    if (typeof text !== "string") {
+      const type = typeof text;
       return {
         valid: false,
         text: text,
@@ -95,12 +95,12 @@ class Validator {
   }
 
   validateId(id) {
-    if (typeof id !== Number) {
+    if (typeof id !== "string") {
       const type = typeof id;
       return {
         valid: false,
         text: id,
-        error: `Your ID must be a number and instead you input a ${type}`,
+        error: `Your ID must be a number, instead your input was a ${type}`,
       };
     }
     return { valid: true };

@@ -39,7 +39,7 @@ class FormatData {
         };
       }
       const userFolders = organizedData.user.folders;
-      if (!parentfolderid) {
+      if (!parentfolderid && folderid) {
         userFolders.push({
           folderid,
           foldertitle,

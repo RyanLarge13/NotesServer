@@ -131,3 +131,6 @@ LEFT JOIN
 	notes nh ON fh.folderId = nh.folderId
 ORDER BY
 	fh.folderId, nh.createdAt;
+
+-- Find a user after successful jwt authentication
+SELECT * FROM users WHERE email = $1;

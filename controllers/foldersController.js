@@ -1,6 +1,8 @@
-import ResponseHandler from "../utils/ResponseHandler.j";
-import Validator from "../utils/ValidateData";
-import pool from "../utils/dbConnection";
+import ResponseHandler from "../utils/ResponseHandler.js";
+import Validator from "../utils/ValidateData.js";
+import pool from "../utils/dbConnection.js";
+import fs from "fs";
+import path from "path";
 
 const resHandler = new ResponseHandler();
 const validator = new Validator();
@@ -11,7 +13,7 @@ const __dirname = path.dirname(__filename);
 const foldersQueriesPath = path.join(__dirname, "../sql/foldersQueries.sql");
 const foldersQueries = fs.readFileSync(foldersQueriesPath, "utf-8").split(";");
 
-class foldersController {
+class FoldersController {
   async getAllUserFolders(req, res) {
     const { userId } = req.user;
     if (!userId) {
@@ -41,6 +43,10 @@ class foldersController {
       }
     } catch (err) {
       return resHandler.connectionError(res, err, "getAllUserFolders");
+    } finally {
+      if (foldersClient) {
+        foldersClient.release();
+      }
     }
   }
   async createFolder(req, res) {
@@ -77,7 +83,7 @@ class foldersController {
           userId,
           title,
           color,
-          parentFolderId,
+          parentFolderId ? parentFolderId : null,
         ]);
         if (newFolder.rows.length < 1) {
           return resHandler.serverError(
@@ -95,6 +101,10 @@ class foldersController {
       }
     } catch (err) {
       return resHandler.connectionError(res, err, "createFolder");
+    } finally {
+      if (foldersClient) {
+        foldersClient.release();
+      }
     }
   }
 
@@ -146,6 +156,10 @@ class foldersController {
       }
     } catch (err) {
       return resHandler.connectionError(res, err, "updateFolderInfo");
+    } finally {
+      if (foldersClient) {
+        foldersClient.release();
+      }
     }
   }
 
@@ -179,14 +193,22 @@ class foldersController {
             "Something Went wrong deleting your folder. Please give us some time to fix the issue and try deleting your folder again in a few seconds"
           );
         }
-        return resHandler.successResponse(res,"Successfully deleted your folder", deletedFolder.rows)
+        return resHandler.successResponse(
+          res,
+          "Successfully deleted your folder",
+          deletedFolder.rows
+        );
       } catch (err) {
         return resHandler.executingQueryError(res, err);
       }
     } catch (err) {
       return resHandler.connectionError(res, err, "deleteFolder");
+    } finally {
+      if (foldersClient) {
+        foldersClient.release();
+      }
     }
   }
 }
 
-export default foldersController;
+export default FoldersController;

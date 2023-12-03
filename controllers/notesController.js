@@ -1,6 +1,8 @@
-import ResponseHandler from "../utils/ResponseHandler.j";
-import Validator from "../utils/ValidateData";
-import pool from "../utils/dbConnection";
+import ResponseHandler from "../utils/ResponseHandler.js";
+import Validator from "../utils/ValidateData.js";
+import pool from "../utils/dbConnection.js";
+import fs from "fs";
+import path from "path";
 
 const resHandler = new ResponseHandler();
 const validator = new Validator();
@@ -10,7 +12,7 @@ const __dirname = path.dirname(__filename);
 
 const notesQueriesPath = path.join(__dirname, "../sql/notesQueries.sql");
 const notesQueries = fs.readFileSync(notesQueriesPath, "utf-8").split(";");
-class notesController {
+class NotesController {
   async getuserNotes(req, res) {
     const { userId } = req.user;
     if (!userId) {
@@ -40,6 +42,10 @@ class notesController {
       }
     } catch (err) {
       return resHandler.connectionError(res, err, "getUserNotes");
+    } finally {
+      if (notesClient) {
+        notesClient.release();
+      }
     }
   }
 
@@ -64,24 +70,33 @@ class notesController {
     try {
       const notesClient = await pool.connect();
       try {
-        const query = notesQueries[0];
-        const allUserNotes = await notesClient.query(query, [userId]);
-        if (allUserNotes.rows < 1) {
-          return resHandler.notFoundError(
+        const query = notesQueries[4];
+        const newNote = await notesClient.query(query, [
+          userId,
+          title,
+          htmlNotes,
+          folderId,
+        ]);
+        if (newNote.rows < 1) {
+          return resHandler.serverError(
             res,
-            "No notes were retrieved for your account. Get started by creating one!"
+            "There was a problem creating your new note"
           );
         }
-        return resHandler.successResponse(
+        return resHandler.successCreate(
           res,
           "Successfully found your notes",
-          allUserNotes.rows
+          newNote.rows
         );
       } catch (err) {
         return resHandler.executingQueryError(res, err);
       }
     } catch (err) {
       return resHandler.connectionError(res, err, "getUserNotes");
+    } finally {
+      if (notesClient) {
+        notesClient.release();
+      }
     }
   }
 
@@ -137,8 +152,12 @@ class notesController {
       }
     } catch (err) {
       return resHandler.connectionError(res, err, "deleteAUsersNote");
+    } finally {
+      if (notesClient) {
+        notesClient.release();
+      }
     }
   }
 }
 
-export default notesController;
+export default NotesController;
