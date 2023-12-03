@@ -36,6 +36,7 @@ class FormatData {
           email,
           createdAt: createdat,
           folders: [],
+          notes: [],
         };
       }
       const userFolders = organizedData.user.folders;
@@ -53,6 +54,7 @@ class FormatData {
         if (parentFolder) {
           parentFolder.folders.push({
             folderid,
+            parentfolderid,
             foldertitle,
             foldercolor,
             folders: [],

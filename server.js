@@ -9,7 +9,7 @@ import foldersRouter from "./routes/foldersRouter.js";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.DEPLOYMENT === "dev" ? 8081 : 8081;
+const PORT = process.env.DEPLOYMENT === "dev" ? 8080 : 8080;
 
 app.use(cors());
 app.use(parser.json());

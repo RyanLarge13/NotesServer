@@ -39,13 +39,11 @@ class NotesController {
         );
       } catch (err) {
         return resHandler.executingQueryError(res, err);
+      } finally {
+        notesClient.release();
       }
     } catch (err) {
       return resHandler.connectionError(res, err, "getUserNotes");
-    } finally {
-      if (notesClient) {
-        notesClient.release();
-      }
     }
   }
 
@@ -90,13 +88,11 @@ class NotesController {
         );
       } catch (err) {
         return resHandler.executingQueryError(res, err);
+      } finally {
+        notesClient.release();
       }
     } catch (err) {
       return resHandler.connectionError(res, err, "getUserNotes");
-    } finally {
-      if (notesClient) {
-        notesClient.release();
-      }
     }
   }
 
@@ -149,13 +145,11 @@ class NotesController {
         return resHandler.successResponse(res, message, deletedNote.rows[0]);
       } catch (err) {
         return resHandler.executingQueryError(res, err);
+      } finally {
+        notesClient.release();
       }
     } catch (err) {
       return resHandler.connectionError(res, err, "deleteAUsersNote");
-    } finally {
-      if (notesClient) {
-        notesClient.release();
-      }
     }
   }
 }

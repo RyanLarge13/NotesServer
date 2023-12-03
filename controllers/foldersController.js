@@ -40,13 +40,11 @@ class FoldersController {
         );
       } catch (err) {
         return resHandler.executingQueryError(res, err);
+      } finally {
+        foldersClient.release();
       }
     } catch (err) {
       return resHandler.connectionError(res, err, "getAllUserFolders");
-    } finally {
-      if (foldersClient) {
-        foldersClient.release();
-      }
     }
   }
   async createFolder(req, res) {
@@ -98,13 +96,11 @@ class FoldersController {
         );
       } catch (err) {
         return resHandler.executingQueryError(res, err);
+      } finally {
+        foldersClient.release();
       }
     } catch (err) {
       return resHandler.connectionError(res, err, "createFolder");
-    } finally {
-      if (foldersClient) {
-        foldersClient.release();
-      }
     }
   }
 
@@ -153,13 +149,11 @@ class FoldersController {
         );
       } catch (err) {
         return resHandler.executingQueryError(res, err);
+      } finally {
+        foldersClient.release();
       }
     } catch (err) {
       return resHandler.connectionError(res, err, "updateFolderInfo");
-    } finally {
-      if (foldersClient) {
-        foldersClient.release();
-      }
     }
   }
 
@@ -200,13 +194,11 @@ class FoldersController {
         );
       } catch (err) {
         return resHandler.executingQueryError(res, err);
+      } finally {
+        foldersClient.release();
       }
     } catch (err) {
       return resHandler.connectionError(res, err, "deleteFolder");
-    } finally {
-      if (foldersClient) {
-        foldersClient.release();
-      }
     }
   }
 }

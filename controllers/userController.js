@@ -43,13 +43,11 @@ class UserController {
         );
       } catch (err) {
         return resHandler.executingQueryError(res, err);
+      } finally {
+        userClient.release();
       }
     } catch (err) {
       return resHandler.connectionError(res, err, "getUserData");
-    } finally {
-      if (userClient) {
-        userClient.release();
-      }
     }
   }
 
@@ -94,13 +92,11 @@ class UserController {
         );
       } catch (err) {
         return resHandler.executingQueryError(res, err);
+      } finally {
+        userClient.release();
       }
     } catch (err) {
       return resHandler.connectionError(res, err, "loginUser");
-    } finally {
-      if (userClient) {
-        userClient.release();
-      }
     }
   }
 
@@ -153,14 +149,12 @@ class UserController {
       } catch (err) {
         console.log(err);
         return resHandler.executingQueryError(res, err);
+      } finally {
+        userClient.release();
       }
     } catch (err) {
       console.log(err);
       return resHandler.connectionError(res, err, "signupUser");
-    } finally {
-      if (userClient) {
-        userClient.release();
-      }
     }
   }
 
@@ -174,10 +168,10 @@ class UserController {
       );
     }
     try {
-      const updateUserClient = await pool.connect();
+      const userClient = await pool.connect();
       try {
         const updateQuery = userQueries[8];
-        const updatedUser = await updateUserClient.query(updateQuery, [
+        const updatedUser = await userClient.query(updateQuery, [
           userId,
           newUsername,
           newEmail,
@@ -197,13 +191,11 @@ class UserController {
         );
       } catch (err) {
         return resHandler.executingQueryError(res, err);
+      } finally {
+        userClient.release();
       }
     } catch (err) {
       return resHandler.connectionError(res, err, "updateUser");
-    } finally {
-      if (updateUserClient) {
-        updateUserClient.release();
-      }
     }
   }
 
@@ -223,7 +215,7 @@ class UserController {
       );
     }
     try {
-      const updateUserPassClient = await pool.connect();
+      const userClient = await pool.connect();
       try {
         const updateQuery = userQueries[9];
         const hashedPassword = await bcryptjs.hash(newPassword, 10);
@@ -233,7 +225,7 @@ class UserController {
             "Something went wrong creating your new password. Please try updating it again"
           );
         }
-        const newUpdatedUser = await updateUserPassClient.query(updateQuery, [
+        const newUpdatedUser = await userClient.query(updateQuery, [
           userId,
           hashedPassword,
         ]);
@@ -250,13 +242,11 @@ class UserController {
         );
       } catch (err) {
         return resHandler.executingQueryError(res, err);
+      } finally {
+        userClient.release();
       }
     } catch (err) {
       return resHandler.connectionError(res, err, "updateUserPassword");
-    } finally {
-      if (updateUserPassClient) {
-        updateUserPassClient.release();
-      }
     }
   }
 
@@ -269,12 +259,10 @@ class UserController {
       );
     }
     try {
-      const deleteUserClient = await pool.connect();
+      const userClient = await pool.connect();
       try {
         const deleteUserQuery = userQueries[10];
-        const deletedUser = await deleteUserClient.query(deleteUserQuery, [
-          userId,
-        ]);
+        const deletedUser = await userClient.query(deleteUserQuery, [userId]);
         if (deletedUser.rows < 1) {
           return resHandler.serverError(
             res,
@@ -288,13 +276,11 @@ class UserController {
         );
       } catch (err) {
         return resHandler.executingQueryError(res, err);
+      } finally {
+        userClient.release();
       }
     } catch (err) {
       return resHandler.connectionError(res, err, "updateUserPassword");
-    } finally {
-      if (deleteUserClient) {
-        deleteUserClient.release();
-      }
     }
   }
 }

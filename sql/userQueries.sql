@@ -23,6 +23,7 @@ SELECT
     folders.color AS folderColor,
     folders.title AS folderTitle,
     folders.parentFolderId AS parentFolderId, 
+	notes.noteId AS noteId
     notes.title AS noteTitle,
     notes.htmlNotes AS htmlText,
   	notes.folderId AS noteFolderId,
