@@ -23,7 +23,7 @@ SELECT
     folders.color AS folderColor,
     folders.title AS folderTitle,
     folders.parentFolderId AS parentFolderId, 
-	notes.noteId AS noteId
+	  notes.notesId AS noteId, 
     notes.title AS noteTitle,
     notes.htmlNotes AS htmlText,
   	notes.folderId AS noteFolderId,
@@ -46,13 +46,13 @@ WHERE username = $1 AND email = $2;
 
 -- Find a user after authentication and return the related folders and notes for that user
 SELECT * FROM users
-LEFT JOIN folders ON user.userId = folders.userId
-LEFT JOIN notes On folder.folderId = notes.folderId
+LEFT JOIN folders ON users.userId = folders.userId
+LEFT JOIN notes ON users.userId = notes.userId
 WHERE users.userId = $1;
 
 -- Find an authenticated user and their folders
 SELECT * FROM users
-LEFT JOIN folders ON user.userId = folders.userId
+LEFT JOIN folders ON users.userId = folders.userId
 WHERE users.userId = $1;
 
 -- Find an authenticated user and their notes

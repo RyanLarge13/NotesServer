@@ -74,6 +74,67 @@ class FormatData {
     });
     return organizedData;
   }
+
+  toSeperatedObj(rawData) {
+    const organizedData = {
+      user: {},
+      folders: [],
+      notes: [],
+    };
+    const doesNotExist = (array, itemId, type) =>
+      !array.some((item) =>
+        type === "folder" ? item.folderId === itemId : item.noteId === itemId
+      );
+    rawData.forEach((item) => {
+      const {
+        userid,
+        username,
+        email,
+        createdat,
+        folderid,
+        foldertitle,
+        foldercolor,
+        parentfolderid,
+        notefolderid,
+        noteid,
+        notetitle,
+        htmltext,
+        notecreatedat,
+      } = item;
+      if (!organizedData.user.userId) {
+        organizedData.user = {
+          userId: item.userid,
+          username: item.username,
+          email: item.email,
+          createdAt: item.createdat,
+        };
+      }
+      if (doesNotExist(organizedData.folders, folderid, "folder")) {
+        const folder = {
+          folderid,
+          color: foldercolor,
+          title: foldertitle,
+          parentFolderId: parentfolderid,
+        };
+        organizedData.folders.push(folder);
+      }
+      if (doesNotExist(organizedData.notes, noteid, "note")) {
+      	if (noteid) {
+      		
+        const note = {
+          noteid,
+          title: notetitle,
+          htmlText: htmltext,
+          folderId: notefolderid,
+          createdAt: notecreatedat,
+        };
+        organizedData.notes.push(note);
+      	}
+      }
+    });
+    console.log(organizedData);
+    return organizedData;
+  }
 }
 
 export default FormatData;

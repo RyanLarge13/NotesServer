@@ -51,6 +51,40 @@ class UserController {
     }
   }
 
+  async getUserDataSeperated(req, res) {
+    const { userId } = req.user;
+    if (!userId) {
+      return resHandler.authError(
+        res,
+        "There was a problem authenticating your account. Please log back in and try again"
+      );
+    }
+    try {
+      const userClient = await pool.connect();
+      try {
+        const userData = await userClient.query(userQueries[2], [userId]);
+        if (userData.rows.length === 0) {
+          return resHandler.notFoundError(
+            res,
+            "No user was found in out records with your credentials, please try to login again"
+          );
+        }
+        const formattedData = formatter.toSeperatedObj(userData.rows);
+        return resHandler.successResponse(
+          res,
+          "Successfully fetched users information",
+          formattedData
+        );
+      } catch (err) {
+        return resHandler.executingQueryError(res, err);
+      } finally {
+        userClient.release();
+      }
+    } catch (err) {
+      return resHandler.connectionError(res, err, "getUserData");
+    }
+  }
+
   async loginUser(req, res) {
     const { username, password, email } = req.body;
     if (!username || !password || !email) {
