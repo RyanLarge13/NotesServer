@@ -40,7 +40,7 @@ class FormatData {
         };
       }
       const userFolders = organizedData.user.folders;
-      if (!parentfolderid && folderid) {
+      if (!parentfolderid) {
         userFolders.push({
           folderid,
           foldertitle,
@@ -103,10 +103,10 @@ class FormatData {
       } = item;
       if (!organizedData.user.userId) {
         organizedData.user = {
-          userId: item.userid,
-          username: item.username,
-          email: item.email,
-          createdAt: item.createdat,
+          userId: userid,
+          username: username,
+          email: email,
+          createdAt: createdat,
         };
       }
       if (doesNotExist(organizedData.folders, folderid, "folder")) {
@@ -119,17 +119,16 @@ class FormatData {
         organizedData.folders.push(folder);
       }
       if (doesNotExist(organizedData.notes, noteid, "note")) {
-      	if (noteid) {
-      		
-        const note = {
-          noteid,
-          title: notetitle,
-          htmlText: htmltext,
-          folderId: notefolderid,
-          createdAt: notecreatedat,
-        };
-        organizedData.notes.push(note);
-      	}
+        if (noteid) {
+          const note = {
+            noteid,
+            title: notetitle,
+            htmlText: htmltext,
+            folderId: notefolderid,
+            createdAt: notecreatedat,
+          };
+          organizedData.notes.push(note);
+        }
       }
     });
     console.log(organizedData);
