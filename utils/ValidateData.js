@@ -95,7 +95,7 @@ class Validator {
   }
 
   validateId(id) {
-    if (typeof id !== "string") {
+    if (typeof id !== "number") {
       const type = typeof id;
       return {
         valid: false,

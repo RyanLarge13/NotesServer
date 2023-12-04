@@ -47,6 +47,7 @@ class FoldersController {
       return resHandler.connectionError(res, err, "getAllUserFolders");
     }
   }
+
   async createFolder(req, res) {
     const { userId } = req.user;
     const { title, color, parentFolderId } = req.body;
@@ -89,10 +90,19 @@ class FoldersController {
             "There was a problem with the server when attempting to creating your new folder, give us some time to fix the issue and try again"
           );
         }
+        const folderObj = newFolder.rows[0];
+        const folderToSend = {
+          foldertitle: folderObj.title,
+          foldercolor: folderObj.color,
+          folderid: folderObj.folderid,
+          parentfolderid: folderObj.parentfolderid,
+          folders: [],
+          notes: [],
+        };
         return resHandler.successCreate(
           res,
           "Successfully created your new folder",
-          newFolder.rows
+          [folderToSend]
         );
       } catch (err) {
         return resHandler.executingQueryError(res, err);
