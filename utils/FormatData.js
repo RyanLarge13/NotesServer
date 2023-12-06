@@ -109,7 +109,7 @@ class FormatData {
           createdAt: createdat,
         };
       }
-      if (doesNotExist(organizedData.folders, folderid, "folder")) {
+      if (doesNotExist(organizedData.folders, folderid, "folder") && folderid) {
         const folder = {
           folderid,
           color: foldercolor,
@@ -118,8 +118,7 @@ class FormatData {
         };
         organizedData.folders.push(folder);
       }
-      if (doesNotExist(organizedData.notes, noteid, "note")) {
-        if (noteid) {
+      if (doesNotExist(organizedData.notes, noteid, "note") && noteid) {
           const note = {
             noteid,
             title: notetitle,
@@ -128,7 +127,6 @@ class FormatData {
             createdAt: notecreatedat,
           };
           organizedData.notes.push(note);
-        }
       }
     });
     console.log(organizedData);
