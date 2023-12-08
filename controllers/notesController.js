@@ -52,7 +52,7 @@ class NotesController {
     const { title, htmlNotes, folderId } = req.body;
     const validArray = [
       validator.validateString(title),
-      validator.validateHtml(htmlNotes),
+     // validator.validateHtml(htmlNotes),
       validator.validateId(folderId),
     ];
     const allValid = validator.validateArray(validArray);

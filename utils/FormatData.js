@@ -83,7 +83,7 @@ class FormatData {
     };
     const doesNotExist = (array, itemId, type) =>
       !array.some((item) =>
-        type === "folder" ? item.folderId === itemId : item.noteId === itemId
+        type === "folder" ? item.folderid === itemId : item.noteid === itemId
       );
     rawData.forEach((item) => {
       const {
@@ -119,14 +119,14 @@ class FormatData {
         organizedData.folders.push(folder);
       }
       if (doesNotExist(organizedData.notes, noteid, "note") && noteid) {
-          const note = {
-            noteid,
-            title: notetitle,
-            htmlText: htmltext,
-            folderId: notefolderid,
-            createdAt: notecreatedat,
-          };
-          organizedData.notes.push(note);
+        const note = {
+          noteid,
+          title: notetitle,
+          htmlText: htmltext,
+          folderId: notefolderid,
+          createdAt: notecreatedat,
+        };
+        organizedData.notes.push(note);
       }
     });
     console.log(organizedData);
