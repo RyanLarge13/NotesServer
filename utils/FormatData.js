@@ -29,6 +29,7 @@ class FormatData {
         notetitle,
         htmltext,
       } = row;
+      // return console.log(row);
       if (!organizedData.user) {
         organizedData.user = {
           userId: userid,
@@ -40,8 +41,8 @@ class FormatData {
         };
       }
       const userFolders = organizedData.user.folders;
-      if (!parentfolderid) {
-        userFolders.push({
+      if (!parentfolderid && !this.findFolder(userFolders, folderid)) {
+        return userFolders.push({
           folderid,
           foldertitle,
           foldercolor,
@@ -63,13 +64,15 @@ class FormatData {
         }
       }
       if (notefolderid) {
-        const parentFolder = this.findFolder(userFolders, notefolderid);
-        parentFolder.notes.push({
-          noteid,
-          notefolderid,
-          notetitle,
-          htmltext,
-        });
+        const noteParentFolder = this.findFolder(userFolders, notefolderid);
+        if (noteParentFolder) {
+          noteParentFolder.notes.push({
+            noteid,
+            notefolderid,
+            notetitle,
+            htmltext,
+          });
+        }
       }
     });
     return organizedData;
