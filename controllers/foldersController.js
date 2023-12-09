@@ -169,7 +169,7 @@ class FoldersController {
 
   async deleteFolder(req, res) {
     const { userId } = req.user;
-    const { folderId } = req.body;
+    const { folderId } = req.params;
     if (!userId) {
       return resHandler.authError(
         res,

@@ -8,6 +8,6 @@ const foldersController = new FoldersController();
 foldersRouter.get("/", auth, foldersController.getAllUserFolders);
 foldersRouter.post("/create", auth, foldersController.createFolder);
 foldersRouter.patch("/update", auth, foldersController.updateFolderInfo);
-foldersRouter.delete("/delete", auth, foldersController.deleteFolder);
+foldersRouter.delete("/delete/:folderId", auth, foldersController.deleteFolder);
 
 export default foldersRouter;

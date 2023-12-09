@@ -120,7 +120,7 @@ class NotesController {
 
   async deleteAUsersNote(req, res) {
     const { userId } = req.user;
-    const { noteId } = req.body;
+    const { noteId } = req.params;
     if (!userId) {
       return resHandler.authError(
         res,
