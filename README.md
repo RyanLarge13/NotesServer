@@ -25,7 +25,7 @@ Repetitive tasks with related functionality live within their own classes and bu
 
 ### Modularized
 
-The server, routes, and controllers are all seperated into their own directories for orginization. Raw SQL was used and also modularize into their own folders. 
+The server, routes, and controllers are all seperated into their own directories for orginization. Raw SQL was used and also modularize into their own folders.
 Eg. SQL queries and SQL migrations
 
 ### Functional
@@ -46,7 +46,7 @@ git clone git@github.com:Ryanlarge13/Notes-Server.git
 cd Notes-Server && npm install
 ```
 
-3. You will need to build a dbConnection.js file under utils. Copy and past this code and change the placeholders
+3. You will need to update the dbConnection.js file to accommodate your own DB, just replace the values with your own
 
 ```
 import pkg from 'pg';
@@ -76,4 +76,4 @@ Run through the api documentation here to get an idea of how to use this server 
 
 ## Contributing
 
-If you are interested in contributing your version of this server feel free to open a pull request. Checkout the PR template here [PR Template](./PULL_REQUEST_TEMPLATE)
+If you are interested in contributing your version of this server feel free to open a pull request. Checkout the PR template here [PR Template](./PULL_REQUEST_TEMPLATE.md)
