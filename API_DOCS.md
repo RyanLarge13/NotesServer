@@ -19,7 +19,7 @@ All requests sent to the backend require data within the body of a request and a
 All user routes begin with **users/**
 example
 
-**https://my-app/users/\***
+**my-app/users/\***
 
 ### PATCH & POST
 
@@ -27,7 +27,7 @@ This section will cover all of the patch and post requests available for the use
 
 #### Create a new user - POST
 
-##### https://my-app/users/signup
+##### my-app/users/signup
 
 **example request**
 
@@ -58,7 +58,7 @@ this example will create a new user with the provided information and return a J
 
 #### Login a user - POST
 
-##### https://my-app/users/login
+##### my-app/users/login
 
 **example request**
 
@@ -89,7 +89,7 @@ This route will login a user given they provided data for each userData field an
 
 #### Update a user's username or email - PATCH
 
-##### https://my-app/users/update
+##### my-app/users/update
 
 **example request**
 
@@ -135,7 +135,7 @@ These requests will cover all of the get and delete requests on a user table
 
 #### Fetch all user data - GET
 
-##### https://my-app/users/data
+##### my-app/users/data
 
 **example request**
 
@@ -204,7 +204,7 @@ As you can see there can be a large amount of nesting involved in this pre-forma
 
 #### Delete a user - DELETE
 
-##### https://my-app/users/delete/
+##### my-app/users/delete/
 
 Deleting a user has a cascade effect. All notes and folders associated with the user will also be deleted
 
@@ -239,8 +239,136 @@ This query will delete your account completely and all of the data associated wi
 All notes routes begin with **notes/**
 example
 
-**https://my-app/notes/\***
+**my-app/notes/\***
 
 ### PATCH & POST
 
 This section will cover all of the patch and post requests available for the notes table
+
+#### Create a new notes - POST
+
+##### my-app/notes/create
+
+**example request**
+
+```
+const createNote = (token, note) => {
+	const res = Axios.post(`${productionUrl}/notes/create`, { ...note }, {
+		headers: {
+			Authorization: `Bearer ${token}`
+		}
+	});
+	return res;
+}
+```
+
+The notes parameter should be passed in as an object to the request function
+
+**example response**
+
+```
+{
+	message: "Successfully created your new note",
+	data: [{
+	  noteId: "unique id",
+		title: "Note title",
+		folderId: "id to parent folder",
+		htmlText: "<p>Your html</p>"
+	}]
+}
+```
+
+#### Update a note - PATCH
+
+##### my-app/notes/update
+
+**example request**
+
+```
+const updateNote = (token, note) => {
+	const res = Axios.post(`${productionUrl}/notes/create`, { ...note }, {
+		headers: {
+			Authorization: `Bearer ${token}`
+		}
+	});
+	return res;
+}
+```
+
+This request, like the create request will return your newly created / updated note from the database
+
+**example response**
+
+```
+{
+	message: "Successfully updated your new note",
+	data: [{
+	  noteId: "unique id",
+		title: "Note title",
+		folderId: "id to parent folder",
+		htmlText: "<p>Your html</p>"
+	}]
+}
+```
+
+### GET && DELETE
+
+This section will cover all of the GET and DELETE requests available for the notes table
+
+#### Get a user's notes - GET
+
+##### my-app/notes/
+
+**example request**
+
+```
+const getUserNotes = (token) => {
+	const res = Axios.post(`${productionUrl}/notes/create`, {
+		headers: {
+			Authorization: `Bearer ${token}`
+		}
+	});
+	return res;
+}
+```
+
+This request will return all of the notes related to a user
+
+**example response**
+
+```
+{
+	message: "Successfully found your notes",
+	data: [{ ...note }, { ...note }]
+}
+```
+
+Look at the previous create or update request to get an idea of what a note looks like
+
+#### Delete a user's note - DELETE
+
+##### my-app/notes/delete/:noteId
+
+**example request**
+
+```
+const getUserNotes = (token, noteId) => {
+	const res = Axios.post(`${productionUrl}/notes/delete/${noteId}, {
+		headers: {
+			Authorization: `Bearer ${token}`
+		}
+	});
+	return res;
+}
+```
+
+This request a note with the matching noteId in the database and return to the client the deleted note
+
+**example response**
+
+```
+{
+	messenge: "Successfully deleted your note", 
+	data: { ...note }
+}
+```

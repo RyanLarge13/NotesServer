@@ -83,7 +83,7 @@ class NotesController {
         }
         return resHandler.successCreate(
           res,
-          "Successfully found your notes",
+          "Successfully created your new note",
           newNote.rows
         );
       } catch (err) {
