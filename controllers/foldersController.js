@@ -178,7 +178,7 @@ class FoldersController {
     }
     const validId = validator.validateId(folderId);
     if (!validId.valid) {
-      return badRequestError(
+      return resHandler.badRequestError(
         res,
         "Please provide a valid folder identification to delete it"
       );
