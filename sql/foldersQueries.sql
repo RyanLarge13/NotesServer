@@ -22,8 +22,8 @@ RETURNING *;
 
 -- Edit a folder
 UPDATE folders
-SET title = $2, color = $3
-WHERE userId = $1
+SET title = $3, color = $4
+WHERE userId = $1 AND folderId = $2
 RETURNING *;
 
 -- Updaet a folders position
@@ -40,7 +40,7 @@ RETURNING title;
 -- Delete a folder and store return the entire folder if the user wants to undo his changes from the frontend
 DELETE FROM folders
 WHERE userId = $1 AND folderId = $2
-RETURNING *;
+RETURNING folderId;
 
 DELETE FROM folders
 WHERE userId = $1 AND parentFolderId IS NOT NULL AND parentFolderId = $2;

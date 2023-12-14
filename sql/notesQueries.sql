@@ -36,8 +36,8 @@ RETURNING *;
 
 -- Delete a note
 DELETE FROM notes
-WHERE userId = $1
-RETURNING title;
+WHERE notesId = $1
+RETURNING notesId;
 
 -- Delete a note and store return the entire note if the user wants to undo his changes from the frontend
 DELETE FROM notes

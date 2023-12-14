@@ -52,7 +52,7 @@ class NotesController {
     const { title, htmlNotes, folderId } = req.body;
     const validArray = [
       validator.validateString(title),
-     // validator.validateHtml(htmlNotes),
+      // validator.validateHtml(htmlNotes),
       validator.validateId(folderId),
     ];
     const allValid = validator.validateArray(validArray);
@@ -104,7 +104,7 @@ class NotesController {
     const validArray = [
       validator.validateId(notesId),
       validator.validateString(title),
-      validator.validateHtml(htmlNotes),
+      //validator.validateHtml(htmlNotes),
     ];
     const allValid = validator.validateArray(validArray);
     if (!userId) {
@@ -115,6 +115,35 @@ class NotesController {
     }
     if (!allValid.valid) {
       return resHandler.badRequestError(res, allValid.error);
+    }
+    try {
+      const notesClient = await pool.connect();
+      try {
+        const query = notesQueries[5];
+        const noteUpdate = await notesClient.query(query, [
+          userId,
+          notesId,
+          title,
+          htmlNotes,
+        ]);
+        if (noteUpdate.rows.length < 1) {
+          return resHandler.serverError(
+            res,
+            "There was a problem updating your note. Please give us some time to fix the problem and try again in a few seconds"
+          );
+        }
+        return resHandler.successResponse(
+          res,
+          "Successfully updated your note",
+          noteUpdate.rows
+        );
+      } catch (err) {
+        return resHandler.executingQueryError(res, err);
+      } finally {
+        notesClient.release();
+      }
+    } catch (err) {
+      return resHandler.connectionError(res, err, "deleteAUsersNote");
     }
   }
 
@@ -127,7 +156,7 @@ class NotesController {
         "Please try to login again there was a problem authenticating who you are"
       );
     }
-    const validId = validator.validateId(noteId);
+    const validId = validator.validateString(noteId);
     if (!noteId || !validId) {
       return resHandler.badRequestError(res, validId.error);
     }
@@ -142,7 +171,11 @@ class NotesController {
             "There was a problem deleting your account, Please try again later"
           );
         }
-        return resHandler.successResponse(res, message, deletedNote.rows[0]);
+        return resHandler.successResponse(
+          res,
+          "Your note was successfully deleted",
+          deletedNote.rows
+        );
       } catch (err) {
         return resHandler.executingQueryError(res, err);
       } finally {

@@ -118,7 +118,7 @@ class FoldersController {
 
   async updateFolderInfo(req, res) {
     const { userId } = req.user;
-    const { title, color } = req.body;
+    const { title, color, folderId } = req.body;
     if (!title && !color) {
       return resHandler.badRequestError(
         res,
@@ -145,7 +145,12 @@ class FoldersController {
       const foldersClient = await pool.connect();
       try {
         const query = foldersQueries[5];
-        const update = foldersClient.query(query, [userId, title, color]);
+        const update = await foldersClient.query(query, [
+          userId,
+          folderId,
+          title,
+          color,
+        ]);
         if (update.rows.length < 1) {
           return res.serverError(
             res,
@@ -176,7 +181,8 @@ class FoldersController {
         "Please try to login again there was a problem authenticating who you are"
       );
     }
-    const validId = validator.validateId(folderId);
+    const validId = validator.validateString(folderId);
+    console.log(typeof folderId);
     if (!validId.valid) {
       return resHandler.badRequestError(
         res,
