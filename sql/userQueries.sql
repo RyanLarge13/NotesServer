@@ -25,6 +25,7 @@ SELECT
     folders.parentFolderId AS parentFolderId, 
 	  notes.notesId AS noteId, 
     notes.title AS noteTitle,
+    notes.locked AS locked, 
     notes.htmlNotes AS htmlText,
   	notes.folderId AS noteFolderId,
   	notes.createdAt AS noteCreatedAt
@@ -122,6 +123,7 @@ SELECT
 	fh.color AS folderColor,
 	nh.id AS noteId,
 	nh.title AS noteTitle,
+	nh.locked AS locked, 
 	nh.createdAt AS noteCreatedAt,
 	nh.htmlNotes
 FROM

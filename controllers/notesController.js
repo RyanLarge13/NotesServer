@@ -100,7 +100,7 @@ class NotesController {
 
   async updateAUsersNote(req, res) {
     const { userId } = req.user;
-    const { notesId, title, htmlNotes } = req.body;
+    const { notesId, title, htmlNotes, locked } = req.body;
     const validArray = [
       validator.validateId(notesId),
       validator.validateString(title),
@@ -125,6 +125,7 @@ class NotesController {
           notesId,
           title,
           htmlNotes,
+          locked
         ]);
         if (noteUpdate.rows.length < 1) {
           return resHandler.serverError(

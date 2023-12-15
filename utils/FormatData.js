@@ -26,10 +26,10 @@ class FormatData {
         parentfolderid,
         notefolderid,
         noteid,
+        locked,
         notetitle,
         htmltext,
       } = row;
-      // return console.log(row);
       if (!organizedData.user) {
         organizedData.user = {
           userId: userid,
@@ -70,6 +70,7 @@ class FormatData {
             noteid,
             notefolderid,
             notetitle,
+            locked,
             htmltext,
           });
         }
@@ -100,6 +101,7 @@ class FormatData {
         parentfolderid,
         notefolderid,
         noteid,
+        locked,
         notetitle,
         htmltext,
         notecreatedat,
@@ -127,12 +129,12 @@ class FormatData {
           title: notetitle,
           htmlText: htmltext,
           folderId: notefolderid,
+          locked: locked,
           createdAt: notecreatedat,
         };
         organizedData.notes.push(note);
       }
     });
-    console.log(organizedData);
     return organizedData;
   }
 }

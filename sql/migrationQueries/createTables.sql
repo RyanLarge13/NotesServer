@@ -34,10 +34,11 @@ CREATE TABLE IF NOT EXISTS notes (
 	title VARCHAR(255) NOT NULL,
 	createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	htmlNotes TEXT,
+  -- ADD COLUMN locked BOOLEAN
 	userId INT NOT NULL,
--- ADD COLUMN folderId INT,
+  -- ADD COLUMN folderId INT,
 	FOREIGN KEY (userId) REFERENCES users(userId)
--- ADD FOREIGN KEY (folderId) REFERENCES folders(folderId) ON DELETE CASCADE;
+  -- ADD FOREIGN KEY (folderId) REFERENCES folders(folderId) ON DELETE CASCADE;
 );
 
 
@@ -47,4 +48,14 @@ CREATE TABLE IF NOT EXISTS folderCategories (
 	PRIMARY KEY (folderId, categoryId),
 	FOREIGN KEY (folderId) REFERENCES folders(folderId),
 	FOREIGN KEY (categoryId) REFERENCES categories(categoryId)
+);
+
+CREATE TABLE IF NOT EXISTS trash (
+	trashid SERIAL PRIMARY KEY,
+	title VARCHAR(255) NOT NULL,
+	createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	htmlNotes TEXT,
+  locked BOOLEAN, 
+	userId INT NOT NULL,
+	FOREIGN KEY (userId) REFERENCES users(userId)
 );

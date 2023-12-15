@@ -24,7 +24,7 @@ RETURNING *;
 
 -- Edit a note
 UPDATE notes
-SET title = $3, htmlNotes = $4
+SET title = $3, htmlNotes = $4, locked = $5
 WHERE userId = $1 AND notesId = $2
 RETURNING *;
 
