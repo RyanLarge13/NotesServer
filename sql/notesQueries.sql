@@ -47,3 +47,7 @@ RETURNING *;
 -- Delete all folder notes
 DELETE from notes
 WHERE userId = $1 AND folderId = $2;
+
+-- Find a specific notes
+SELECT * FROM notes
+WHERE noteId = $1;

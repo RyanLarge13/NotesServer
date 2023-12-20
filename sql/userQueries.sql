@@ -34,7 +34,7 @@ FROM
 LEFT JOIN
     folders ON users.userId = folders.userId
 LEFT JOIN
-    notes ON folders.folderId = notes.folderId
+    notes ON users.userId = notes.userId
 WHERE
     users.userId = $1
 ORDER BY 

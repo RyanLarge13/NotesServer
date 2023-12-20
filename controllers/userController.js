@@ -52,6 +52,7 @@ class UserController {
   }
 
   async getUserDataSeperated(req, res) {
+    console.log("getting");
     const { userId } = req.user;
     if (!userId) {
       return resHandler.authError(

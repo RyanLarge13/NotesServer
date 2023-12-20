@@ -118,7 +118,7 @@ class FoldersController {
 
   async updateFolderInfo(req, res) {
     const { userId } = req.user;
-    const { title, color, folderId } = req.body;
+    const { parentFolderId, title, color, folderId } = req.body;
     if (!title && !color) {
       return resHandler.badRequestError(
         res,
@@ -148,6 +148,7 @@ class FoldersController {
         const update = await foldersClient.query(query, [
           userId,
           folderId,
+          parentFolderId, 
           title,
           color,
         ]);

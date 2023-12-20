@@ -11,7 +11,10 @@ const __filename = new URL(import.meta.url).pathname;
 const __dirname = path.dirname(__filename);
 
 const notesQueriesPath = path.join(__dirname, "../sql/notesQueries.sql");
+const trashQueriesPath = path.join(__dirname, "../sql/trashQueries.sql");
 const notesQueries = fs.readFileSync(notesQueriesPath, "utf-8").split(";");
+const trashQueries = fs.readFileSync(trashQueriesPath, "utf-8").split(";");
+
 class NotesController {
   async getuserNotes(req, res) {
     const { userId } = req.user;
@@ -53,7 +56,7 @@ class NotesController {
     const validArray = [
       validator.validateString(title),
       // validator.validateHtml(htmlNotes),
-      validator.validateId(folderId),
+      //validator.validateId(folderId),
     ];
     const allValid = validator.validateArray(validArray);
     if (!userId) {
@@ -125,7 +128,7 @@ class NotesController {
           notesId,
           title,
           htmlNotes,
-          locked
+          locked,
         ]);
         if (noteUpdate.rows.length < 1) {
           return resHandler.serverError(
@@ -165,6 +168,8 @@ class NotesController {
       const notesClient = await pool.connect();
       try {
         const query = notesQueries[7];
+        //const createTrashQuery = trashQueries[2];
+        //const createTrash = await notesClient.query(createTrashQuery,[])
         const deletedNote = await notesClient.query(query, [noteId]);
         if (deletedNote.rows < 1) {
           return resHandler.serverError(

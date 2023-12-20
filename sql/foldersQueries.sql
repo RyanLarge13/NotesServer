@@ -22,7 +22,7 @@ RETURNING *;
 
 -- Edit a folder
 UPDATE folders
-SET title = $3, color = $4
+SET parentFolderId = $3, title = $4, color = $5
 WHERE userId = $1 AND folderId = $2
 RETURNING *;
 
