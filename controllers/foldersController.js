@@ -148,12 +148,12 @@ class FoldersController {
         const update = await foldersClient.query(query, [
           userId,
           folderId,
-          parentFolderId, 
+          parentFolderId,
           title,
           color,
         ]);
         if (update.rows.length < 1) {
-          return res.serverError(
+          return resHandler.serverError(
             res,
             "Something went wrong updating your folder, please give us some time and try again in a few seconds"
           );
