@@ -183,7 +183,6 @@ class FoldersController {
       );
     }
     const validId = validator.validateString(folderId);
-    console.log(typeof folderId);
     if (!validId.valid) {
       return resHandler.badRequestError(
         res,
@@ -204,6 +203,51 @@ class FoldersController {
             "Something Went wrong deleting your folder. Please give us some time to fix the issue and try deleting your folder again in a few seconds"
           );
         }
+        return resHandler.successResponse(
+          res,
+          "Successfully deleted your folder",
+          deletedFolder.rows
+        );
+      } catch (err) {
+        return resHandler.executingQueryError(res, err);
+      } finally {
+        foldersClient.release();
+      }
+    } catch (err) {
+      return resHandler.connectionError(res, err, "deleteFolder");
+    }
+  }
+
+  async deleteMultipleFolders(req, res) {
+    const { userId } = req.user;
+    const { folderIds } = req.body;
+    if (!userId) {
+      return resHandler.authError(
+        res,
+        "Please try to login again there was a problem authenticating who you are"
+      );
+    }
+    // const validId = validator.validateString(folderIds[0]);
+    // if (!validId.valid) {
+    //   return resHandler.badRequestError(
+    //     res,
+    //     "Please provide a valid folder identification to delete it"
+    //   );
+    // }
+    try {
+      const foldersClient = await pool.connect();
+      try {
+        const query = foldersQueries[9];
+        const deletedFolder = await foldersClient.query(query, [
+          userId,
+          folderIds,
+        ]);
+        // if (deletedFolder.rows.length < 1) {
+        //   return resHandler.serverError(
+        //     res,
+        //     "Something Went wrong deleting your folder. Please give us some time to fix the issue and try deleting your folder again in a few seconds"
+        //   );
+        // }
         return resHandler.successResponse(
           res,
           "Successfully deleted your folder",

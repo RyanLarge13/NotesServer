@@ -9,5 +9,10 @@ foldersRouter.get("/", auth, foldersController.getAllUserFolders);
 foldersRouter.post("/create", auth, foldersController.createFolder);
 foldersRouter.patch("/update", auth, foldersController.updateFolderInfo);
 foldersRouter.delete("/delete/:folderId", auth, foldersController.deleteFolder);
+foldersRouter.delete(
+  "/multiple/delete",
+  auth,
+  foldersController.deleteMultipleFolders
+);
 
 export default foldersRouter;
