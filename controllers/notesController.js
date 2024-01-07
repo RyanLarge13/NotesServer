@@ -52,7 +52,7 @@ class NotesController {
 
   async createAUsersNote(req, res) {
     const { userId } = req.user;
-    const { title, htmlNotes, folderId } = req.body;
+    const { title, htmlNotes, folderId, locked } = req.body;
     const validArray = [
       validator.validateString(title),
       // validator.validateHtml(htmlNotes),
@@ -76,6 +76,7 @@ class NotesController {
           userId,
           title,
           htmlNotes,
+          locked,
           folderId,
         ]);
         if (newNote.rows < 1) {
@@ -103,7 +104,7 @@ class NotesController {
 
   async updateAUsersNote(req, res) {
     const { userId } = req.user;
-    const { notesId, title, htmlNotes, locked } = req.body;
+    const { notesId, title, htmlNotes, locked, folderId } = req.body;
     const validArray = [
       validator.validateId(notesId),
       validator.validateString(title),
@@ -129,6 +130,7 @@ class NotesController {
           title,
           htmlNotes,
           locked,
+          folderId,
         ]);
         if (noteUpdate.rows.length < 1) {
           return resHandler.serverError(

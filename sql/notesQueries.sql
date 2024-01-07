@@ -18,13 +18,13 @@ SELECT * FROM notes
 WHERE userId = $1 AND LIKE $2;
 
 -- Create a new note 
-INSERT INTO notes (userId, title, htmlNotes, folderId)
-VALUES ($1, $2, $3, $4)
+INSERT INTO notes (userId, title, htmlNotes, locked, folderId)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING *;
 
 -- Edit a note
 UPDATE notes
-SET title = $3, htmlNotes = $4, locked = $5
+SET title = $3, htmlNotes = $4, locked = $5, folderId = $6
 WHERE userId = $1 AND notesId = $2
 RETURNING *;
 
