@@ -137,3 +137,9 @@ ORDER BY
 
 -- Find a user after successful jwt authentication
 SELECT * FROM users WHERE email = $1;
+
+-- Update user password
+UPDATE users 
+SET password = $2
+WHERE email = $1
+RETURNING *;

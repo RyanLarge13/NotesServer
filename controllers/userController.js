@@ -5,6 +5,11 @@ import bcryptjs from "bcryptjs";
 import signUser from "../auth/signUser.js";
 import ResponseHandler from "../utils/ResponseHandler.js";
 import FormatData from "../utils/FormatData.js";
+import {
+  sendChangePasswordEmail,
+  sendPasswordReqEmail,
+  sendWelcomeEmail,
+} from "../utils/sendMail.js";
 
 const resHandler = new ResponseHandler();
 const formatter = new FormatData();
@@ -15,6 +20,20 @@ const __dirname = path.dirname(__filename);
 const userQueriesPath = path.join(__dirname, "../sql/userQueries.sql");
 
 const userQueries = fs.readFileSync(userQueriesPath, "utf-8").split(";");
+
+function generateRandomPassword(length) {
+  const specialChars =
+    "!@#$%^&*()_+-ABCDEFGHIJKL=[]{}|;:,.<>?MNOPQRSTUVWXYZabcdefghijklvwxyz0123456789mnopqrstu";
+
+  let password = "";
+
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * specialChars.length);
+    password += specialChars.charAt(randomIndex);
+  }
+
+  return password;
+}
 
 class UserController {
   async getUserData(req, res) {
@@ -106,7 +125,6 @@ class UserController {
           );
         }
         const userData = user.rows[0];
-        console.log(userData);
         const dbPassword = userData.password;
         const isMatch = await bcryptjs.compare(password, dbPassword);
         if (!isMatch) {
@@ -158,7 +176,7 @@ class UserController {
         if (!hashedPassword) {
           return resHandler.serverError(
             res,
-            "Something went wrong on the server processing your request, we appologize for the inconvenience. Please reload the app and try again"
+            "Something went wrong on the server processing your request, we apologize for the inconvenience. Please reload the app and try again"
           );
         }
         const createUserQuery = userQueries[7];
@@ -176,6 +194,7 @@ class UserController {
         }
         const newUserData = newDbUser.rows[0];
         const newToken = signUser(newUserData);
+        sendWelcomeEmail(email, username, password);
         return resHandler.successCreate(
           res,
           "Successfully created your new account!",
@@ -235,23 +254,30 @@ class UserController {
   }
 
   async updateUserPassword(req, res) {
-    const { newPassword } = req.body;
-    const { userId } = req.user;
+    const { oldPassword, newPassword } = req.body;
+    const { userId, email, username } = req.user;
     if (!newPassword) {
       return resHandler.badRequestError(
         res,
         "Please provide a new password to update your account"
       );
     }
+    if (!oldPassword) {
+      return resHandler.badRequestError(
+        res,
+        "You must include your old password for security purposes"
+      );
+    }
     if (!userId) {
       return resHandler.authError(
         res,
-        "Something went wrong while authenticating your request, please try updatin gyour password again"
+        "Something went wrong while authenticating your request, please try updating your password again"
       );
     }
     try {
       const userClient = await pool.connect();
       try {
+        const checkUserPassQuery = userQueries[0];
         const updateQuery = userQueries[9];
         const hashedPassword = await bcryptjs.hash(newPassword, 10);
         if (!hashedPassword) {
@@ -260,20 +286,40 @@ class UserController {
             "Something went wrong creating your new password. Please try updating it again"
           );
         }
-        const newUpdatedUser = await userClient.query(updateQuery, [
+        const currentUser = await userClient.query(checkUserPassQuery, [
           userId,
-          hashedPassword,
         ]);
-        if (newUpdatedUser.rows.length < 1) {
+        if (currentUser.rows.length < 0) {
           return resHandler.serverError(
             res,
-            "Something went wrong updating your account, Please login and try again"
+            "We apologize for not being able to securely update your password at the moment. Please give us some time and try again in a few seconds. If the issue persists please contact the developer at ryan@ryanlarge.dev"
           );
         }
-        return resHandler.successResponse(
+        const passwordMatches = await bcryptjs.compare(
+          oldPassword,
+          currentUser.rows[0].password
+        );
+        if (passwordMatches) {
+          const newUpdatedUser = await userClient.query(updateQuery, [
+            userId,
+            hashedPassword,
+          ]);
+          if (newUpdatedUser.rows.length < 1) {
+            return resHandler.serverError(
+              res,
+              "Something went wrong updating your account, Please login and try again"
+            );
+          }
+          sendChangePasswordEmail(email, username, newPassword);
+          return resHandler.successResponse(
+            res,
+            "Your new password is officially set",
+            null
+          );
+        }
+        return resHandler.badRequestError(
           res,
-          "Your new password if officially set",
-          null
+          "You must provide the correct password that you have in your account currently before you can set a new one"
         );
       } catch (err) {
         return resHandler.executingQueryError(res, err);
@@ -283,6 +329,40 @@ class UserController {
     } catch (err) {
       return resHandler.connectionError(res, err, "updateUserPassword");
     }
+  }
+
+  async forgotCreds(req, res) {
+    const email = req.body.email;
+    const userClient = await pool.connect();
+    const exsistingUser = await userClient.query(userQueries[12], [email]);
+    if (exsistingUser.rows.length > 0) {
+      const randomCharacters = generateRandomPassword(10);
+      const tempPass = await bcryptjs.hash(randomCharacters, 10);
+      const updatedPassword = await userClient.query(userQueries[13], [
+        email,
+        tempPass,
+      ]);
+      if (updatedPassword.rows.length > 0) {
+        sendPasswordReqEmail(
+          email,
+          updatedPassword.rows[0].username,
+          randomCharacters
+        );
+        return resHandler.successResponse(
+          res,
+          "An email was sent to your account with your credentials",
+          null
+        );
+      }
+      return resHandler.serverError(
+        res,
+        "There was a problem on our end trying to help you reset your password, please try again later after giving us a few minutes to fix the issue. Email the developer at ryan@ryanlarge.dev"
+      );
+    }
+    return resHandler.badRequestError(
+      res,
+      "your email is note associated with an account. Please signup and create an account or check your email and try the request again"
+    );
   }
 
   async deleteUser(req, res) {
