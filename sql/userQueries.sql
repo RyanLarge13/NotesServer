@@ -28,13 +28,20 @@ SELECT
     notes.locked AS locked, 
     notes.htmlNotes AS htmlText,
   	notes.folderId AS noteFolderId,
-  	notes.createdAt AS noteCreatedAt
+  	notes.createdAt AS noteCreatedAt,
+	trash.title AS trashTitle,
+	trash.trashid AS trashId,
+	trash.createdAt AS trashCreatedAt,
+	trash.htmlNotes AS trashHtmlNotes,
+	trash.locked AS trashLocked
 FROM
     users
 LEFT JOIN
     folders ON users.userId = folders.userId
 LEFT JOIN
     notes ON users.userId = notes.userId
+LEFT JOIN
+    trash ON users.userId = trash.userId
 WHERE
     users.userId = $1
 ORDER BY 

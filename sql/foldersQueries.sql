@@ -40,10 +40,14 @@ RETURNING title;
 -- Delete a folder and store return the entire folder if the user wants to undo his changes from the frontend
 DELETE FROM folders
 WHERE userId = $1 AND folderId = $2
-RETURNING folderId;
+RETURNING *;
 
 DELETE FROM folders
 WHERE userId = $1 AND folderId = ANY($2::int[]);
 
 DELETE FROM folders
 WHERE userId = $1 AND parentFolderId IS NOT NULL AND parentFolderId = $2;
+
+UPDATE folders
+SET parentFolderId = $2
+WHERE folderId IN ({folders}) AND userId = $1;

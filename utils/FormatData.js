@@ -84,6 +84,7 @@ class FormatData {
       user: {},
       folders: [],
       notes: [],
+      trashed: [],
     };
     const doesNotExist = (array, itemId, type) =>
       !array.some((item) =>
@@ -105,6 +106,11 @@ class FormatData {
         notetitle,
         htmltext,
         notecreatedat,
+        trashtitle,
+        trashid,
+        trashcreatedat,
+        trashhtmlnotes,
+        trashlocked,
       } = item;
       if (!organizedData.user.userId) {
         organizedData.user = {
@@ -133,6 +139,17 @@ class FormatData {
           createdAt: notecreatedat,
         };
         organizedData.notes.push(note);
+      }
+      if (doesNotExist(organizedData.trashed, trashid, "note")) {
+        const newTrash = {
+          noteid: trashid,
+          title: trashtitle,
+          htmlText: trashhtmlnotes,
+          folderid: null,
+          locked: trashlocked,
+          createdAt: trashcreatedat,
+        };
+        organizedData.trashed.push(newTrash);
       }
     });
     return organizedData;

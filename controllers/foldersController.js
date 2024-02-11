@@ -10,6 +10,7 @@ const validator = new Validator();
 const __filename = new URL(import.meta.url).pathname;
 const __dirname = path.dirname(__filename);
 
+// Queries to manipulate folder
 const foldersQueriesPath = path.join(__dirname, "../sql/foldersQueries.sql");
 const foldersQueries = fs.readFileSync(foldersQueriesPath, "utf-8").split(";");
 
@@ -114,7 +115,49 @@ class FoldersController {
     }
   }
 
-  async updateFolderPosition(req, res) {}
+  async moveMultipleFolders(req, res) {
+    const { userId } = req.user;
+    if (!userId) {
+      return resHandler.authError(
+        res,
+        "Please try to login again there was a problem authenticating who you are"
+      );
+    }
+    const allFolders = req.body.folderArray;
+    const newParentId = req.body.newParentId;
+    if (allFolders.length === 0) {
+      return resHandler.badRequestError(
+        res,
+        "You must provide at least 1 folder to update"
+      );
+    }
+    const templateReplacementValues = Array.from(
+      { length: allFolders.length - 1 },
+      (_, i) => `$${i + 3}`
+    ).join(", ");
+    try {
+      const foldersClient = await pool.connect();
+      try {
+        const preUpdateManyQuery = foldersQueries[11];
+        const updateManyQuery = preUpdateManyQuery.replace(
+          { folders },
+          templateReplacementValues
+        );
+        const updateFolders = await foldersClient.query(updateManyQuery, [
+          userId,
+          newParentId,
+          allFolders,
+        ]);
+      } catch (err) {
+        return resHandler.executingQueryError(res, err);
+      } finally {
+        foldersClient.release();
+      }
+    } catch (err) {
+      console.log(err);
+      return resHandler.connectionError(res, err, "updateFolderInfo");
+    }
+  }
 
   async updateFolderInfo(req, res) {
     const { userId } = req.user;

@@ -170,20 +170,35 @@ class NotesController {
       const notesClient = await pool.connect();
       try {
         const query = notesQueries[7];
-        //const createTrashQuery = trashQueries[2];
-        //const createTrash = await notesClient.query(createTrashQuery,[])
-        const deletedNote = await notesClient.query(query, [noteId]);
+        const deletedNote = await notesClient.query(query, [userId, noteId]);
         if (deletedNote.rows < 1) {
           return resHandler.serverError(
             res,
-            "There was a problem deleting your account, Please try again later"
+            "There was a problem deleting your note, Please try again later"
           );
         }
-        return resHandler.successResponse(
-          res,
-          "Your note was successfully deleted",
-          deletedNote.rows
-        );
+        const returnedNote = deletedNote.rows[0];
+        const { title, htmlnotes, locked } = returnedNote;
+        const createTrashQuery = trashQueries[1];
+        const createTrash = await notesClient.query(createTrashQuery, [
+          title,
+          htmlnotes,
+          locked,
+          userId,
+        ]);
+        if (createTrash.rows.length < 1) {
+          return resHandler.successResponse(
+            res,
+            "Your note was successfully deleted, but an error occurred when attempting to save it to the trash",
+            null
+          );
+        } else {
+          return resHandler.successResponse(
+            res,
+            "Your note was successfully deleted",
+            createTrash.rows
+          );
+        }
       } catch (err) {
         return resHandler.executingQueryError(res, err);
       } finally {

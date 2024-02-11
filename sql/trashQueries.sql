@@ -4,7 +4,7 @@ WHERE userId = $1;
 
 -- Create a trashed note
 INSERT INTO trash (title, htmlNotes, locked, userId)
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4)
 RETURNING *;
 
 -- Delete a trashed item 

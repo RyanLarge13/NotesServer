@@ -71,7 +71,6 @@ class UserController {
   }
 
   async getUserDataSeperated(req, res) {
-    console.log("getting");
     const { userId } = req.user;
     if (!userId) {
       return resHandler.authError(
@@ -136,7 +135,6 @@ class UserController {
           email: userData.email,
           createdAt: userData.createdat,
         };
-        console.log(jwtUser);
         const token = signUser(jwtUser);
         return resHandler.successResponse(
           res,
@@ -154,7 +152,6 @@ class UserController {
   }
 
   async signupUser(req, res) {
-    console.log(req.body);
     const { username, email, password } = req.body;
     if (!username || !email || !password) {
       return resHandler.badRequestError(
