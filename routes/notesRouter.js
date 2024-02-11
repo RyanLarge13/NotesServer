@@ -8,6 +8,7 @@ const notesController = new NotesController();
 notesRouter.get("/", auth, notesController.getuserNotes);
 notesRouter.post("/create", auth, notesController.createAUsersNote);
 notesRouter.patch("/update", auth, notesController.updateAUsersNote);
+notesRouter.patch("/movetotrash", auth, notesController.moveNoteToTrash);
 notesRouter.delete("/delete/:noteId", auth, notesController.deleteAUsersNote);
 
 export default notesRouter;

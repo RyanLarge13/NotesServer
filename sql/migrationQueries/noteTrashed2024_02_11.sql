@@ -1,0 +1,2 @@
+ALTER TABLE notes
+ADD COLUMN trashed BOOLEAN DEFAULT false;

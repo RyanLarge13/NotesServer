@@ -106,6 +106,18 @@ class Validator {
     return { valid: true };
   }
 
+  validateBool(bool) {
+    if (typeof bool !== "boolean") {
+      const type = typeof bool;
+      return {
+        valid: false,
+        text: `${bool}`,
+        error: `Your data must be true or false boolean, instead your input was a ${type}`,
+      };
+    }
+    return { valid: true };
+  }
+
   validateArray(arr) {
     const allValidInputs = arr.every((bool) => bool.valid === true);
     if (!allValidInputs) {

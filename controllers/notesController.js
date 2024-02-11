@@ -11,9 +11,7 @@ const __filename = new URL(import.meta.url).pathname;
 const __dirname = path.dirname(__filename);
 
 const notesQueriesPath = path.join(__dirname, "../sql/notesQueries.sql");
-const trashQueriesPath = path.join(__dirname, "../sql/trashQueries.sql");
 const notesQueries = fs.readFileSync(notesQueriesPath, "utf-8").split(";");
-const trashQueries = fs.readFileSync(trashQueriesPath, "utf-8").split(";");
 
 class NotesController {
   async getuserNotes(req, res) {
@@ -153,6 +151,58 @@ class NotesController {
     }
   }
 
+  async moveNoteToTrash(req, res) {
+    const { userId } = req.user;
+    const { noteId, trashedBool } = req.body;
+    if (!userId) {
+      return resHandler.authError(
+        res,
+        "Please try to login again there was a problem authenticating who you are"
+      );
+    }
+    const validId = validator.validateString(noteId);
+    const validTrashBool = validator.validateBool(trashedBool);
+    if (!noteId || !validTrashBool || !validId) {
+      return resHandler.badRequestError(res, validId.error);
+    }
+    try {
+      const notesClient = await pool.connect();
+      try {
+        const query = notesQueries[11];
+        const movedNote = await notesClient.query(query, [
+          userId,
+          noteId,
+          trashedBool,
+        ]);
+        if (movedNote.rows < 1) {
+          return resHandler.serverError(
+            res,
+            `There was a problem ${
+              trashedBool ? "trashing" : "moving"
+            } your note, Please try again later`
+          );
+        }
+        return resHandler.successResponse(
+          res,
+          `Your note was successfully ${
+            trashedBool
+              ? "sent to the trash"
+              : "your not was successfully moved to your folders"
+          }`,
+          movedNote.rows
+        );
+      } catch (err) {
+        console.log(err);
+        return resHandler.executingQueryError(res, err);
+      } finally {
+        notesClient.release();
+      }
+    } catch (err) {
+      console.log(err);
+      return resHandler.connectionError(res, err, "moveNoteToTrash");
+    }
+  }
+
   async deleteAUsersNote(req, res) {
     const { userId } = req.user;
     const { noteId } = req.params;
@@ -177,34 +227,18 @@ class NotesController {
             "There was a problem deleting your note, Please try again later"
           );
         }
-        const returnedNote = deletedNote.rows[0];
-        const { title, htmlnotes, locked } = returnedNote;
-        const createTrashQuery = trashQueries[1];
-        const createTrash = await notesClient.query(createTrashQuery, [
-          title,
-          htmlnotes,
-          locked,
-          userId,
-        ]);
-        if (createTrash.rows.length < 1) {
-          return resHandler.successResponse(
-            res,
-            "Your note was successfully deleted, but an error occurred when attempting to save it to the trash",
-            null
-          );
-        } else {
-          return resHandler.successResponse(
-            res,
-            "Your note was successfully deleted",
-            createTrash.rows
-          );
-        }
+        return resHandler.successResponse(
+          res,
+          "Your note was successfully deleted",
+          deletedNote.rows
+        );
       } catch (err) {
         return resHandler.executingQueryError(res, err);
       } finally {
         notesClient.release();
       }
     } catch (err) {
+      console.log(err);
       return resHandler.connectionError(res, err, "deleteAUsersNote");
     }
   }

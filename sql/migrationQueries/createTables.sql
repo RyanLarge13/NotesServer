@@ -50,12 +50,13 @@ CREATE TABLE IF NOT EXISTS folderCategories (
 	FOREIGN KEY (categoryId) REFERENCES categories(categoryId)
 );
 
-CREATE TABLE IF NOT EXISTS trash (
-	trashid SERIAL PRIMARY KEY,
-	title VARCHAR(255) NOT NULL,
-	createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	htmlNotes TEXT,
-  locked BOOLEAN, 
-	userId INT NOT NULL,
-	FOREIGN KEY (userId) REFERENCES users(userId)
-);
+-- Dropped this table 2024/02/11 ***********************************************************
+-- CREATE TABLE IF NOT EXISTS trash (
+-- 	trashid SERIAL PRIMARY KEY,
+-- 	title VARCHAR(255) NOT NULL,
+-- 	createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+-- 	htmlNotes TEXT,
+--   locked BOOLEAN, 
+-- 	userId INT NOT NULL,
+-- 	FOREIGN KEY (userId) REFERENCES users(userId)
+-- );

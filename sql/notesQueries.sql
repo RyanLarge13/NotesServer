@@ -51,3 +51,9 @@ WHERE userId = $1 AND folderId = $2;
 -- Find a specific notes
 SELECT * FROM notes
 WHERE noteId = $1;
+
+-- Move note to trash or out of trash
+UPDATE notes
+SET trashed = $3
+WHERE userId = $1 AND notesId = $2
+RETURNING *;
