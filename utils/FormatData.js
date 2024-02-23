@@ -106,6 +106,7 @@ class FormatData {
         htmltext,
         notecreatedat,
         trashed,
+        noteupdated,
       } = item;
       if (!organizedData.user.userId) {
         organizedData.user = {
@@ -132,6 +133,7 @@ class FormatData {
           folderId: notefolderid,
           locked: locked,
           createdAt: notecreatedat,
+          updated: noteupdated,
           trashed: trashed,
         };
         organizedData.notes.push(note);

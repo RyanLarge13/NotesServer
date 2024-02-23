@@ -29,7 +29,8 @@ SELECT
     notes.htmlNotes AS htmlText,
   	notes.folderId AS noteFolderId,
   	notes.createdAt AS noteCreatedAt,
-	notes.trashed AS trashed
+	notes.trashed AS trashed,
+	notes.updated AS noteUpdated
 FROM
     users
 LEFT JOIN
