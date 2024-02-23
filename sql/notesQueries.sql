@@ -24,7 +24,7 @@ RETURNING *;
 
 -- Edit a note
 UPDATE notes
-SET title = $3, htmlNotes = $4, locked = $5, folderId = $6
+SET title = $3, htmlNotes = $4, locked = $5, folderId = $6, updated = CURRENT_TIMESTAMP
 WHERE userId = $1 AND notesId = $2
 RETURNING *;
 
