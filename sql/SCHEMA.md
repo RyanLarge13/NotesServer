@@ -12,18 +12,6 @@ createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
 
-## General Category Table
-
-```
-CREATE TABLE IF NOT EXISTS categories (
-categoryId SERIAL PRIMARY KEY,
-name VARCHAR(255),
-description VARCHAR(255),
-userId INT NOT NULL,
-FOREIGN KEY (userId) REFERENCES users(userId)
-);
-```
-
 ## Folders Table
 
 ```
@@ -54,14 +42,29 @@ FOREIGN KEY (folderId) REFERENCES folders(folderId) ON DELETE CASCADE;
 );
 ```
 
-## Folder Category Table
+## ShareRequests
 
 ```
-CREATE TABLE IF NOT EXISTS folderCategories (
-folderId INT NOT NULL,
-categoryId INT NOT NULL,
-PRIMARY KEY (folderId, categoryId),
-FOREIGN KEY (folderId) REFERENCES folders(folderId),
-FOREIGN KEY (categoryId) REFERENCES categories(categoryId)
+CREATE TABLE IF NOT EXISTS shareRequests (
+    reqId SERIAL PRIMARY KEY,
+    reqToId INT NOT NULL,
+    reqFromId INT NOT NULL,
+    FOREIGN KEY (reqToId) REFERENCES users(userId),
+    FOREIGN KEY (reqFromId) REFERENCES users(userId)
+);
+```
+
+## SharedNotes
+
+```
+CREATE TABLE IF NOT EXISTS sharedNotes (
+    sharedNoteId SERIAL PRIMARY KEY,
+    shared BOOLEAN DEFAULT false NOT NULL,
+    toId INT NOT NULL,
+    fromId INT NOT NULL,
+    noteSharedId INT NOT NULL,
+    FOREIGN KEY (noteSharedId) REFERENCES notes(notesId),
+    FOREIGN KEY (toId) REFERENCES users(userId),
+    FOREIGN KEY (fromId) REFERENCES users(userId)sharedNotes
 );
 ```
