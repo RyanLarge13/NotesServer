@@ -19,6 +19,21 @@ WHERE friendOneId = $1 AND friendTwoId = $2 OR friendTwoId = $2 AND friendOneId 
 RETURNING *;
 
 -- 4 Delete a connection
-DELETE from connections
+DELETE FROM connections
 WHERE friendOneId = $1 AND friendTwoId = $2 OR friendTwoId = $2 AND friendOneId = $1
 RETURNING *; 
+
+-- 5 Remove existing connection request
+DELETE FROM connectionReq
+WHERE conReqId = $1
+RETURNING *; 
+
+-- 6 Fond connection request by id
+SELECT * FROm connectionReq
+WHERE conReqId = $1
+RETURNIng *;
+
+-- 7 Create a new connection
+INSERT INTO connections (friendOneId, friendTwoId)
+VALUES ($1, $2)
+RETURNING *;
