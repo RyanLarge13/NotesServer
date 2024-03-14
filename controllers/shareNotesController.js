@@ -39,11 +39,31 @@ class ShareController {
   try {
    const foundNote = await shareClient.query(findNoteQuery, [noteId, userId]);
    if (foundNote.rows.length < 1) {
-    return { found: false, data: null, error: false };
+    return { found: false, data: foundNote.rows[0], error: false };
    }
    return { found: true, data: null, error: false };
   } catch (err) {
    console.log(err);
+   resHandler.executingQueryError(
+    res,
+    "There was a problem on the server. Please try to make your request again and if the issue persists, contact the developer at ryanlarge@ryanlarge.dev"
+   );
+   return { found: false, data: null, error: true };
+  }
+ }
+
+ async checkConnection(shareClient, otherUserId, userId, res) {
+  const connectionQuery = shareQueries[2];
+  try {
+   const connection = await shareClient.query(connectionQuery, [
+    otherUserId,
+    userId
+   ]);
+   if (connection.rows.length < 1) {
+    return { found: false, data: null, error: false };
+   }
+   return { found: true, data: connection.rows[0], error: false };
+  } catch (err) {
    resHandler.executingQueryError(
     res,
     "There was a problem on the server. Please try to make your request again and if the issue persists, contact the developer at ryanlarge@ryanlarge.dev"
@@ -86,8 +106,27 @@ class ShareController {
     );
     if (noteExists.error) return;
     if (!noteExists.found) {
-     return resHandler.badRequestError(res,"Please provide a valid note to share to one of your connections")
+     return resHandler.badRequestError(
+      res,
+      "Please provide a valid note to share to one of your connections"
+     );
     }
+    const validConnection = await checkConnection(
+     shareClient,
+     toEmailExists.data.userid,
+     user.userId,
+     res
+    );
+    if (validConnection.error) return;
+    if (!validConnection.found) {
+     return resHandler.badRequestError(
+      res,
+      `You are not connected with
+     ${toEmail}, send a connection request to this user if you know them first
+     before sharing your notes`
+     );
+    }
+    
    } catch (err) {
     console.log(err);
     return resHandler.executingQueryError(res, err);
