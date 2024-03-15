@@ -20,7 +20,12 @@ VALUES ($1, $2, $3)
 RETURNING *;
 
 
--- Check if share request already exists
+-- 4 Check if share request already exists
 SELECT * FROM sharerequests
+WHERE reqId = $1
+RETURNING *;
+
+-- 5 Remove share request
+DELETE FROM sharerequests
 WHERE reqId = $1
 RETURNING *;
