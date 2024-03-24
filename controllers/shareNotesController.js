@@ -256,12 +256,31 @@ class ShareController {
         shareClient,
         shareId,
         res
+      );
+      if (existingReq.error) return;
+      if (existingReq.found) {
+        return resHandler.badRequestError(
+          res,
+          "You already are sharing this note with another user"
         );
-        if (existingReq.error) return;
-        if (existingReq.found) {
-            return resHandler.badRequestError(res, "You already are sharing this note with another user");
-        }
-        const newShareQuery = shareQueries[]
+      }
+      const newShareQuery = shareQueries[6];
+      const newShare = await shareClient.query(newShareQuery, [
+        existingReq.reqToId,
+        existingReq.reqFromId,
+        existingReq.noteToShareId,
+      ]);
+      if (newShare.rows.length < 1) {
+        return resHandler.serverError(
+          res,
+          "We had an issue creating the new connection for sharing this note. Please try again, and if the issue persists, contact the developer at rynalarge@ryanlareg.dev"
+        );
+      }
+      return resHandler.succussCreate(
+        res,
+        "You and your connection can now successfully collaborate on this note",
+        newShare.rows[0]
+      );
     } catch (err) {
       console.log(err);
       return resHandler.connectionError(res, err, "removeShareReq");
@@ -271,5 +290,59 @@ class ShareController {
   async removeShare(req, res) {
     const user = req.user;
     const { shareId } = req.body;
+    if (!user) {
+      return resHandler.authError(
+        res,
+        "You are not authorized to remove this note. Please login and try again"
+      );
+    }
+    if (!shareId) {
+      return resHandler.badRequestError(
+        res,
+        "Please provide us with a valid note to remove from sharing"
+      );
+    }
+    try {
+      const shareClient = await pool.connect();
+      try {
+        const shareReqExists = await this.checkForShareRequest(
+          shareClient,
+          shareId,
+          res
+        );
+        if (shareReqExists.error) {
+          return;
+        }
+        if (!shareReqExists.found) {
+          return resHandler.badRequestError(
+            res,
+            "You must provide us with a valid shared note to remove this connection"
+          );
+        }
+        const removeShareQuery = shareQueries[7];
+        const deletedShare = await shareClient.query(removeShareQuery, [
+          shareReqExists.data.sharednoteid,
+        ]);
+        if (deletedShare.rows.length < 1) {
+          return resHandler.serverError(
+            res,
+            "There was a problem removing the shared connection with this note. Please try again and if the issue persists, contact the developer at ryanlarge@ryanlarge.dev"
+          );
+        }
+        return resHandler.successResponse(
+          res,
+          "YOu have successfully disconnected from sharing this note. You still have access to this note without sharing capabilities",
+          null
+        );
+      } catch (err) {
+        console.log(err);
+        return resHandler.executingQueryError(res, err);
+      }
+    } catch (err) {
+      console.log(err);
+      return resHandler.connectionError(res, err, "removeShareReq");
+    }
   }
 }
+
+export default ShareController;

@@ -84,11 +84,13 @@ class FormatData {
       user: {},
       folders: [],
       notes: [],
+      connections: [],
+      connectionRequests: [],
+      shareRequests: [],
+      sharedNotes: [],
     };
     const doesNotExist = (array, itemId, type) =>
-      !array.some((item) =>
-        type === "folder" ? item.folderid === itemId : item.noteid === itemId
-      );
+      !array.some((item) => item[type] === itemId);
     rawData.forEach((item) => {
       const {
         userid,
@@ -107,6 +109,26 @@ class FormatData {
         notecreatedat,
         trashed,
         noteupdated,
+        conreqid,
+        conid,
+        reqid,
+        sharednoteid,
+        sharednotetitle,
+        sharednotelocked,
+        sharednotehtmltext,
+        sharednotefolderid,
+        sharednotecreatedat,
+        sharednotetrashed,
+        sharednoteupdated,
+        // connectionreqemail,
+        fromuseremail,
+        touseremail,
+        // connectionemail,
+        conuseremailone,
+        conuseremailtwo,
+        // sharerequestsemail,
+        sharereqfromemail,
+        sharereqtoemail,
       } = item;
       if (!organizedData.user.userId) {
         organizedData.user = {
@@ -116,7 +138,40 @@ class FormatData {
           createdAt: createdat,
         };
       }
-      if (doesNotExist(organizedData.folders, folderid, "folder") && folderid) {
+      if (doesNotExist(organizedData.connections, conid, "conid") && conid) {
+        const con = {
+          conid,
+          userOne: conuseremailone,
+          userTwo: conuseremailtwo,
+        };
+        organizedData.connections.push(con);
+      }
+      if (
+        doesNotExist(organizedData.connectionRequests, conreqid, "conreqid") &&
+        conreqid
+      ) {
+        const connectionRequest = {
+          conreqid,
+          userOne: fromuseremail,
+          userTwo: touseremail,
+        };
+        organizedData.connectionRequests.push(connectionRequest);
+      }
+      if (
+        doesNotExist(organizedData.shareRequests, reqid, "shareReqId") &&
+        reqid
+      ) {
+        const shareRequest = {
+          shareReqId: reqid,
+          userOne: sharereqfromemail,
+          userTwo: sharereqtoemail,
+        };
+        organizedData.shareRequests.push(shareRequest);
+      }
+      if (
+        doesNotExist(organizedData.folders, folderid, "folderid") &&
+        folderid
+      ) {
         const folder = {
           folderid,
           color: foldercolor,
@@ -125,7 +180,7 @@ class FormatData {
         };
         organizedData.folders.push(folder);
       }
-      if (doesNotExist(organizedData.notes, noteid, "note") && noteid) {
+      if (doesNotExist(organizedData.notes, noteid, "noteid") && noteid) {
         const note = {
           noteid,
           title: notetitle,
@@ -137,6 +192,28 @@ class FormatData {
           trashed: trashed,
         };
         organizedData.notes.push(note);
+      }
+      if (doesNotExist(organizedData.notes, sharednoteid, "noteid") && noteid) {
+        if (
+          doesNotExist(
+            organizedData.sharedNotes,
+            sharednoteid,
+            "sharenoteid"
+          ) &&
+          sharednoteid
+        ) {
+          const sharedNote = {
+            sharednoteid,
+            sharednotetitle,
+            sharednotelocked,
+            sharednotehtmltext,
+            sharednotefolderid,
+            sharednotecreatedat,
+            sharednotetrashed,
+            sharednoteupdated,
+          };
+          organizedData.sharedNotes.push(sharedNote);
+        }
       }
     });
     return organizedData;

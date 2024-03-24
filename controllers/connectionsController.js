@@ -3,6 +3,11 @@ import ResponseHandler from "../utils/ResponseHandler.js";
 import pool from "../utils/dbConnection.js";
 import fs from "fs";
 import path from "path";
+import {
+  findRequesteesId,
+  checkForExistingConnection,
+  checkForExistingRequest,
+} from "../utils/helpers.js";
 
 const resHandler = new ResponseHandler();
 // const validator = new Validator();
@@ -15,78 +20,6 @@ const conQueries = fs.readFileSync(conQueryPath, "utf-8").split(";");
 
 class ConController {
   constructor() {}
-
-  async findRequesteesId(conClient, userEmail, res) {
-    try {
-      const findUser = conQueries[0];
-      const userFound = conClient.query(findUser, [userEmail]);
-      if (userFound.rows.length < 1) {
-        resHandler.badRequestError(
-          res,
-          "No user with this email exists within our system"
-        );
-        return "";
-      }
-      return userFound.rows[0];
-    } catch (err) {
-      console.log(err);
-      resHandler.executingQueryError(res, err);
-      return "";
-    }
-  }
-
-  async checkForExistingRequest(
-    conClient,
-    userId,
-    requestUserId,
-    res,
-    returnData
-  ) {
-    try {
-      const existingReqQuery = conQueries[1];
-      const existingReq = conClient.query(existingReqQuery, [
-        userId,
-        requestUserId,
-      ]);
-      if (existingReq.rows.length < 1) {
-        if (returnData) {
-          return { exists: false, data: null };
-        }
-        return false;
-      }
-      resHandler.badRequestError(
-        res,
-        "You have already sent this user a connection request"
-      );
-      if (returnData) {
-        return { exists: true, data: existingReq.rows[0] };
-      }
-      return true;
-    } catch (err) {
-      console.log(err);
-      resHandler.executingQueryError(res, err);
-      if (returnData) {
-        return { exists: true, data: null };
-      }
-      return true;
-    }
-  }
-
-  async checkForExistingConnection(conClient, userId, requestUserId, res) {
-    const existingConQuery = conQueries[3];
-    const existingCon = conClient.query(existingConQuery, [
-      userId,
-      requestUserId,
-    ]);
-    if (existingCon.rows.length > 0) {
-      resHandler.badRequestError(
-        res,
-        "You already have an active connection with this user"
-      );
-      return true;
-    }
-    return false;
-  }
 
   // Create a connection request
   async createReqCon(req, res) {
@@ -108,28 +41,24 @@ class ConController {
     try {
       const conClient = await pool.connect();
       try {
-        const requestUserId = await this.findRequesteesId(
-          conClient,
-          userEmail,
-          res
-        );
+        const requestUserId = await findRequesteesId(conClient, userEmail, res);
         if (!requestUserId) {
           return;
         }
-        const conReqExists = await this.checkForExistingRequest(
+        const conReqExists = await checkForExistingRequest(
           conClient,
           user.userId,
-          requestUserId,
+          requestUserId.userid,
           res,
           false
         );
         if (conReqExists) {
           return;
         }
-        const existingConnection = await this.checkForExistingConnection(
+        const existingConnection = await checkForExistingConnection(
           conClient,
           user.userId,
-          requestUserId,
+          requestUserId.userid,
           res
         );
         if (existingConnection) {
@@ -138,7 +67,7 @@ class ConController {
         const createConQuery = conQueries[2];
         const newCon = await conClient.query(createConQuery, [
           user.userId,
-          requestUserId,
+          requestUserId.userid,
         ]);
         if (newCon.rows.length < 1) {
           return resHandler.serverError(
@@ -182,15 +111,11 @@ class ConController {
     try {
       const remConClient = await pool.connect();
       try {
-        const conUserId = await this.findRequesteesId(
-          remConClient,
-          userEmail,
-          res
-        );
+        const conUserId = await findRequesteesId(remConClient, userEmail, res);
         if (!conUserId) {
           return;
         }
-        const existingConnection = await this.checkForExistingConnection(
+        const existingConnection = await checkForExistingConnection(
           remConClient,
           user.userId,
           conUserId,
@@ -311,30 +236,23 @@ class ConController {
     try {
       const conClient = await pool.connect();
       try {
-        const requestUserId = await this.findRequesteesId(
-          conClient,
-          userEmail,
-          res
-        );
+        const requestUserId = await findRequesteesId(conClient, userEmail, res);
         if (!requestUserId) {
           return;
         }
-        const connectionExists = this.checkForExistingConnection(
+        const connectionExists = await checkForExistingConnection(
           conClient,
           user.userId,
-          requestUserId,
+          requestUserId.userid,
           res
         );
         if (connectionExists) {
-          return resHandler.badRequestError(
-            res,
-            `You already have an established connection with ${userEmail}`
-          );
+          return;
         }
-        const existingReq = this.checkForExistingRequest(
+        const existingReq = await checkForExistingRequest(
           conClient,
           user.userId,
-          requestUserId,
+          requestUserId.userid,
           res,
           true
         );
@@ -346,10 +264,11 @@ class ConController {
         }
         const isReceiver = () => {
           const data = existingReq.data;
-          if (data.conReqFrom === user.userId) {
+          console.log(data, user.userId);
+          if (data.conreqfrom === user.userId) {
             return false;
           }
-          if (data.conReqTo !== user.userId) {
+          if (data.conreqto !== user.userId) {
             return false;
           }
           return true;
@@ -361,9 +280,11 @@ class ConController {
           );
         }
         const createConQuery = conQueries[7];
+        const removeRequestQuery = conQueries[8];
+        await conClient.query(removeRequestQuery, [existingReq.data.conreqid]);
         const createdConnection = await conClient.query(createConQuery, [
           user.userId,
-          requestUserId,
+          requestUserId.userid,
         ]);
         if (createdConnection.rows.length < 1) {
           return resHandler.serverError(
@@ -382,7 +303,7 @@ class ConController {
       }
     } catch (err) {
       console.log(err);
-      return resHandler.connectionError(res, err, "cancelConRequest");
+      return resHandler.connectionError(res, err, "create connection");
     }
   }
 }

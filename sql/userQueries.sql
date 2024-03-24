@@ -1,8 +1,8 @@
 --                                               GET REQUESTS 0 - 6
--- Find a user after successful jwt authentication
+-- 0 Find a user after successful jwt authentication
 SELECT * FROM users WHERE userId = $1;
 
--- Find a user and return jwt token signing information (don't return password)
+-- 1 Find a user and return jwt token signing information (don't return password)
 SELECT
 	users.userId,
 	users.username,
@@ -13,7 +13,7 @@ FROM
 WHERE 
 	users.userId = $1;
 
--- Find a user and return all of the user information for jwt signing (exclude password) but still include a user's folders and notes
+-- 2 Find a user and return all of the user information
 SELECT
     users.userId,
     users.username,
@@ -23,20 +23,76 @@ SELECT
     folders.color AS folderColor,
     folders.title AS folderTitle,
     folders.parentFolderId AS parentFolderId, 
-	  notes.notesId AS noteId, 
+	notes.notesId AS noteId, 
     notes.title AS noteTitle,
     notes.locked AS locked, 
     notes.htmlNotes AS htmlText,
   	notes.folderId AS noteFolderId,
   	notes.createdAt AS noteCreatedAt,
 	notes.trashed AS trashed,
-	notes.updated AS noteUpdated
+	notes.updated AS noteUpdated,
+	connectionReq.conReqId,
+	connections.conId,
+	shareRequests.reqId,
+	sharedNote.notesId AS sharedNoteId,
+    sharedNote.title AS sharedNoteTitle,
+    sharedNote.locked AS sharedNoteLocked,
+    sharedNote.htmlNotes AS sharedNoteHtmlText,
+    sharedNote.folderId AS sharedNoteFolderId,
+    sharedNote.createdAt AS sharedNoteCreatedAt,
+    sharedNote.trashed AS sharedNoteTrashed,
+    sharedNote.updated AS sharedNoteUpdated,
+   CASE 
+        WHEN connectionReq.conReqFrom = users.userId THEN toUser.email
+        ELSE fromUser.email
+    END AS connectionReqEmail,
+    fromUser.email AS fromUserEmail,
+    toUser.email AS toUserEmail,
+	CASE 
+        WHEN connections.friendOneId = users.userId THEN conOneUser.email
+        ELSE conTwoUser.email
+    END AS connectionEmail,
+    conOneUser.email AS conUserEmailOne,
+    conTwoUser.email AS conUserEmailTwo,
+	CASE 
+		WHEN shareRequests.reqFromId = users.userId THEN shareReqTo.email
+		ELSE shareReqFrom.email
+	END AS shareRequestsEmail,
+	shareReqFrom.email AS shareReqFromEmail,
+	shareReqTo.email AS shareReqToEmail
 FROM
     users
 LEFT JOIN
     folders ON users.userId = folders.userId
 LEFT JOIN
     notes ON users.userId = notes.userId
+	-- join connection requests
+LEFT JOIN 
+    connectionReq ON users.userId = connectionReq.conReqTo OR users.userId = connectionReq.conReqFrom
+LEFT JOIN
+    users AS toUser ON connectionReq.conReqTo = toUser.userId
+LEFT JOIN
+    users AS fromUser ON connectionReq.conReqFrom = fromUser.userId
+	-- Join connections
+LEFT JOIN
+    connections ON users.userId = connections.friendOneId OR users.userId = connections.friendTwoId
+LEFT JOIN
+    users AS conOneUser ON connections.friendOneId = conOneUser.userId
+LEFT JOIN
+    users AS conTwoUser ON connections.friendTwoId = conTwoUser.userId
+	-- Join share requests
+LEFT JOIN 
+	shareRequests ON users.userId = shareRequests.reqFromId OR users.userId = shareRequests.reqToId
+LEFT JOIN 
+	users AS shareReqFrom ON shareRequests.reqFromId = shareReqFrom.userId
+LEFT JOIN 
+	users AS shareReqTo ON shareRequests.reqToId = shareReqTo.userId
+	-- Join shared notes
+LEFT JOIN 
+    sharedNotes ON users.userId = sharedNotes.toId
+LEFT JOIN 
+    notes AS sharedNote ON sharedNotes.noteSharedId = sharedNote.notesId
+	-- end joins
 WHERE
     users.userId = $1
 ORDER BY 

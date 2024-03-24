@@ -29,3 +29,13 @@ RETURNING *;
 DELETE FROM sharerequests
 WHERE reqId = $1
 RETURNING *;
+
+-- 6 Create share 
+INSERT INTO sharednotes (toId, fromId, noteSharedId)
+VALUES ($1, $2, $3)
+RETURNING *;
+
+-- 7 Delete share
+DELETE FROM sharednotes
+WHERE sahredNoteId = $1;
+RETURNiNG *;
