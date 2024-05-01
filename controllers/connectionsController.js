@@ -8,6 +8,7 @@ import {
   checkForExistingConnection,
   checkForExistingRequest,
 } from "../utils/helpers.js";
+import { sendConnectionReqEmail } from "../utils/sendMail.js";
 
 const resHandler = new ResponseHandler();
 // const validator = new Validator();
@@ -30,6 +31,12 @@ class ConController {
       return resHandler.badRequestError(
         res,
         "You must provide an email destination for your connection request"
+      );
+    }
+    if (userEmail === user.email) {
+      return resHandler.badRequestError(
+        res,
+        "You cannot send a connection request to your own email"
       );
     }
     if (!user) {
@@ -75,6 +82,12 @@ class ConController {
             "We could not create a new connection request right now. Please try again later. If the issue persists, contact the developer at ryanlarge@ryanlarge.dev"
           );
         }
+        await sendConnectionReqEmail(
+          userEmail,
+          requestUserId.username,
+          user.username,
+          user.email
+        );
         return resHandler.successCreate(
           res,
           "Your connection request has been sent. Once accepted you can start sharing notes immediately",
