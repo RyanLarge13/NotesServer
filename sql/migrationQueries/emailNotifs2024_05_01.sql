@@ -1,0 +1,2 @@
+ALTER TABLE users
+ADD COLUMN emailNotifs BOOLEAN NOT NULL DEFAULT false;

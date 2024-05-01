@@ -35,7 +35,11 @@ const changedPasswordPath = path.join(
 const changedPasswordTemplate = await fs.readFile(changedPasswordPath, "utf-8");
 
 // New connection request template
-const newConPath = path.join(__dirname, "../emailTemplates/newConReq.html");
+const newConReqPath = path.join(__dirname, "../emailTemplates/newConReq.html");
+const newConReqTemplate = await fs.readFile(newConReqPath, "utf-8");
+
+// New connection
+const newConPath = path.join(__dirname, "../emailTemplates/newCon.html");
 const newConTemplate = await fs.readFile(newConPath, "utf-8");
 
 const transporter = nodemailer.createTransport({
@@ -115,7 +119,7 @@ export const sendConnectionReqEmail = async (
   sendersName,
   sendersEmail
 ) => {
-  const customizedNewConReqContent = newConTemplate
+  const customizedNewConReqContent = newConReqTemplate
     .replace("{sendersName}", sendersName)
     .replace("{sendersEmail}", sendersEmail)
     .replace("{username}", recipientsName);
@@ -133,8 +137,28 @@ export const sendConnectionReqEmail = async (
   }
 };
 
-export const sendNewConnectionEmail = async () => {};
+export const sendNewConnectionEmail = async (
+  recipientEmail,
+  recipientsName,
+  sendersName,
+  sendersEmail
+) => {
+  const customizedConContent = newConTemplate
+    .replace("{acceptersEmail}", sendersEmail)
+    .replace("{acceptersName}", sendersName)
+    .replace("{username}", recipientsName);
+  const mailOptions = {
+    from: "electronnotes@gmail.com",
+    to: recipientEmail,
+    subject: "New Connection",
+    html: customizedConContent,
+  };
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Email sent", info.response);
+  } catch (err) {
+    console.log(err);
+  }
+};
 
 export const sendNewSharedNoteEmail = async () => {};
-
-export const acceptedConReqEmail = async () => {};

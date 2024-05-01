@@ -8,7 +8,10 @@ import {
   checkForExistingConnection,
   checkForExistingRequest,
 } from "../utils/helpers.js";
-import { sendConnectionReqEmail } from "../utils/sendMail.js";
+import {
+  sendConnectionReqEmail,
+  sendNewConnectionEmail,
+} from "../utils/sendMail.js";
 
 const resHandler = new ResponseHandler();
 // const validator = new Validator();
@@ -305,6 +308,12 @@ class ConController {
             "There was a problem creating your new connection. Please try to accept this request again. If the issue persists, please contact the developer at ryanlarge@ryanlarge,dev"
           );
         }
+        await sendNewConnectionEmail(
+          requestUserId.email,
+          requestUserId.username,
+          user.username,
+          user.email
+        );
         return resHandler.successCreate(
           res,
           `You now share a new connection with ${userEmail}`,
