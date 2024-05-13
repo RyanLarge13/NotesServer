@@ -7,6 +7,7 @@ const foldersController = new FoldersController();
 
 foldersRouter.get("/", auth, foldersController.getAllUserFolders);
 foldersRouter.post("/create", auth, foldersController.createFolder);
+foldersRouter.post("/dup/multiple", auth, foldersController.dupMultipleFolders);
 foldersRouter.patch("/update", auth, foldersController.updateFolderInfo);
 foldersRouter.patch("/moveall", auth, foldersController.moveMultipleFolders);
 foldersRouter.delete("/delete/:folderId", auth, foldersController.deleteFolder);

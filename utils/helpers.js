@@ -10,6 +10,13 @@ const resHandler = new ResponseHandler();
 const __filename = new URL(import.meta.url).pathname;
 const __dirname = path.dirname(__filename);
 
+// Queries to manipulate folders
+const foldersQueriesPath = path.join(__dirname, "../sql/foldersQueries.sql");
+const foldersQueries = fs.readFileSync(foldersQueriesPath, "utf-8").split(";");
+// Queries to manipulate notes
+const notesQueriesPath = path.join(__dirname, "../sql/notesQueries.sql");
+const notesQueries = fs.readFileSync(notesQueriesPath, "utf-8").split(";");
+
 const conQueryPath = path.join(__dirname, "../sql/conQueries.sql");
 const conQueries = fs.readFileSync(conQueryPath, "utf-8").split(";");
 
@@ -88,4 +95,59 @@ export const checkForExistingConnection = async (
     return true;
   }
   return false;
+};
+
+export const addMultiFoldersAndNotes = async (
+  userId,
+  folderid,
+  originalFolderid,
+  foldersArray,
+  notesArray,
+  client,
+  newFoldersArray,
+  newNotesArray
+) => {
+  if (foldersArray.length < 1) {
+    return;
+  }
+  const foldersToAdd = foldersArray.filter(
+    (fold) => fold.parentFolderId === originalFolderid
+  );
+  let notesToAdd;
+  if (notesArray.length > 0) {
+    notesToAdd = notesArray.filter(
+      (note) => note.folderId === originalFolderid
+    );
+    if (notesToAdd.length > 0) {
+      for (let i = 0; i < notesToAdd.length; i++) {
+        const newNote = await client.query(notesQueries[4], [
+          userId,
+          notesToAdd[i].title,
+          notesToAdd[i].htmlNotes,
+          notesToAdd[i].locked,
+          folderid,
+        ]);
+        newNotesArray.push(newNote.rows[0]);
+      }
+    }
+  }
+  for (let i = 0; i < foldersToAdd.length; i++) {
+    const newFolder = await client.query(foldersQueries[4], [
+      userId,
+      foldersToAdd[i].title,
+      foldersToAdd[i].color,
+      folderid,
+    ]);
+    newFoldersArray.push(newFolder.rows[0]);
+    await addMultiFoldersAndNotes(
+      userId,
+      newFolder.rows[0].folderid,
+      foldersToAdd[i].folderid,
+      foldersArray,
+      notesArray,
+      client,
+      newFoldersArray,
+      newNotesArray
+    );
+  }
 };

@@ -1,6 +1,7 @@
 import ResponseHandler from "../utils/ResponseHandler.js";
 import Validator from "../utils/ValidateData.js";
 import pool from "../utils/dbConnection.js";
+import { addMultiFoldersAndNotes } from "../utils/helpers.js";
 import fs from "fs";
 import path from "path";
 
@@ -112,6 +113,76 @@ class FoldersController {
       }
     } catch (err) {
       return resHandler.connectionError(res, err, "createFolder");
+    }
+  }
+
+  async dupMultipleFolders(req, res) {
+    const user = req.user;
+    if (!user) {
+      return resHandler.authError(
+        res,
+        "Please log in before trying to duplicate your content"
+      );
+    }
+    const { newFolders, newNotes } = req.body;
+    if (newFolders.length < 1) {
+      return resHandler.badRequestError(
+        res,
+        "Please provide the folder and contents that you would like to duplicate"
+      );
+    }
+    try {
+      const foldersClient = await pool.connect();
+      try {
+        const firstFolder = await foldersClient.query(foldersQueries[4], [
+          user.userId,
+          newFolders[0].title,
+          newFolders[0].color,
+          newFolders[0].parentFolderId ? newFolders[0].parentFolderId : null,
+        ]);
+        if (firstFolder.rows.length < 1) {
+          return resHandler.serverError(
+            res,
+            "We could not duplicate your content right now. We are terribly sorry. Please reload the application and try again. If the issue persists, contact the developer immediately at ryanlarge@ryanlarge.dev"
+          );
+        }
+        const topLevelFolder = firstFolder.rows[0];
+        const newFoldersArray = [];
+        const newNotesArray = [];
+        newFoldersArray.push(topLevelFolder);
+        try {
+          await addMultiFoldersAndNotes(
+            user.userId,
+            topLevelFolder.folderid,
+            newFolders[0].folderid,
+            newFolders,
+            newNotes,
+            foldersClient,
+            newFoldersArray,
+            newNotesArray
+          );
+        } catch (err) {
+          console.log(err);
+          return resHandler.executingQueryError(res, err);
+        }
+        if (newFoldersArray.length < 1) {
+          return resHandler.serverError(
+            "We are experiencing issues duplicating your content. Please reload the application and try again. If the issue continues to persist, contact the developer immediately at ryanlarge@ryanlarge.dev"
+          );
+        }
+        return resHandler.successCreate(
+          res,
+          "Successfully duplicated your notes",
+          { newFoldersArray, newNotesArray }
+        );
+      } catch (err) {
+        return resHandler.executingQueryError(res, err);
+      } finally {
+        foldersClient.release();
+      }
+    } catch (err) {
+      console.log(err);
+      return resHandler.connectionError(res, err, "dup multiple folders");
     }
   }
 
