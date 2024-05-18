@@ -10,21 +10,22 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const thankYouTemplatePath = path.join(
+const v140Path = path.join(
   __dirname,
-  "../emailTemplates/thankyou.html"
+  "../emailTemplates/releaseEmails/v1.4.0.html"
 );
-const thankYouEmailTemplate = await fs.readFile(thankYouTemplatePath, "utf-8");
+const v140Template = await fs.readFile(v140Path, "utf-8");
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: "electronnotes@gmail.com",
-    pass: "kfdd zhdz asds ouiw",
+    pass: process.env.GMAIL_APPKEY,
   },
 });
 
 const sendEmail = async () => {
+  let count = 0;
   try {
     const dbClient = await pool.connect();
     try {
@@ -36,29 +37,28 @@ const sendEmail = async () => {
         return;
       }
       users.rows.forEach(async (user) => {
-        if (
-          user.email === "ryanhudsonlarge13@gmail.com" ||
-          user.email === "ryanlarge13@gmail.com"
-        ) {
+        if (user.email === "ryanlarge13@gmail.com") {
           return;
         }
-        const specificTemplate = thankYouEmailTemplate.replace(
+        const specificTemplate = v140Template.replace(
           "{username}",
           user.username
         );
         const mailOptions = {
           from: "electronnotes@gmail.com",
           to: user.email,
-          subject: "Thank You",
+          subject: "New Release!",
           html: specificTemplate,
         };
         try {
           const info = await transporter.sendMail(mailOptions);
           console.log("Email sent: " + info.response);
+          count++;
         } catch (error) {
           console.error(error);
         }
       });
+      console.log(count);
       dbClient.release();
     } catch (err) {
       console.log(err);
