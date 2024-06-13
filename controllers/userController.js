@@ -6,7 +6,7 @@ import signUser from "../auth/signUser.js";
 import ResponseHandler from "../utils/ResponseHandler.js";
 import FormatData from "../utils/FormatData.js";
 import {
-  sendAdminEmail,
+  // sendAdminEmail,
   sendChangePasswordEmail,
   sendPasswordReqEmail,
   sendWelcomeEmail,
@@ -193,7 +193,7 @@ class UserController {
         const newUserData = newDbUser.rows[0];
         const newToken = signUser(newUserData);
         await sendWelcomeEmail(email, username, password);
-        await sendAdminEmail(email, username);
+        // await sendAdminEmail(email, username);
         return resHandler.successCreate(
           res,
           "Successfully created your new account!",
