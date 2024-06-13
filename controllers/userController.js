@@ -6,6 +6,7 @@ import signUser from "../auth/signUser.js";
 import ResponseHandler from "../utils/ResponseHandler.js";
 import FormatData from "../utils/FormatData.js";
 import {
+  sendAdminEmail,
   sendChangePasswordEmail,
   sendPasswordReqEmail,
   sendWelcomeEmail,
@@ -120,7 +121,7 @@ class UserController {
         if (user.rows.length === 0) {
           return resHandler.notFoundError(
             res,
-            "No user with these credentials was found with the username and email that were provided, Please try to login agains"
+            "No user with these credentials was found with the username and email that were provided, Please try to login again"
           );
         }
         const userData = user.rows[0];
@@ -162,8 +163,8 @@ class UserController {
     try {
       const userClient = await pool.connect();
       try {
-        const exsistingUser = await userClient.query(userQueries[12], [email]);
-        if (exsistingUser.rows.length > 0) {
+        const existingUser = await userClient.query(userQueries[12], [email]);
+        if (existingUser.rows.length > 0) {
           return resHandler.badRequestError(
             res,
             "A user with your email already currently exists"
@@ -191,7 +192,8 @@ class UserController {
         }
         const newUserData = newDbUser.rows[0];
         const newToken = signUser(newUserData);
-        sendWelcomeEmail(email, username, password);
+        await sendWelcomeEmail(email, username, password);
+        await sendAdminEmail(email, username);
         return resHandler.successCreate(
           res,
           "Successfully created your new account!",
@@ -331,8 +333,8 @@ class UserController {
   async forgotCreds(req, res) {
     const email = req.body.email;
     const userClient = await pool.connect();
-    const exsistingUser = await userClient.query(userQueries[12], [email]);
-    if (exsistingUser.rows.length > 0) {
+    const existingUser = await userClient.query(userQueries[12], [email]);
+    if (existingUser.rows.length > 0) {
       const randomCharacters = generateRandomPassword(10);
       const tempPass = await bcryptjs.hash(randomCharacters, 10);
       const updatedPassword = await userClient.query(userQueries[13], [

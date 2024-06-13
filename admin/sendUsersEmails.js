@@ -37,7 +37,7 @@ const sendEmail = async () => {
         return;
       }
       users.rows.forEach(async (user) => {
-        if (user.email === "ryanlarge13@gmail.com") {
+        if (user.email === process.env.MY_SECOND_EMAIL) {
           return;
         }
         const specificTemplate = v140Template.replace(
