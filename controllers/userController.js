@@ -195,13 +195,14 @@ class UserController {
         const newUserData = newDbUser.rows[0];
         const newToken = signUser(newUserData);
         await sendWelcomeEmail(email, username, password);
-        const country = searchCountry(ip);
-        await sendAdminEmailUserCreateDelete(email, username, country, true);
-        return resHandler.successCreate(
+        resHandler.successCreate(
           res,
           "Successfully created your new account!",
           newToken
         );
+        const country = searchCountry(ip);
+        await sendAdminEmailUserCreateDelete(email, username, country, true);
+        return;
       } catch (err) {
         console.log(err);
         return resHandler.executingQueryError(res, err);
