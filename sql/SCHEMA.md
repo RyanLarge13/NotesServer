@@ -51,8 +51,8 @@ CREATE TABLE IF NOT EXISTS shareRequests (
     reqFromId INT NOT NULL,
     noteToShareId INT NOT NULL,
     FOREIGN KEY (noteToShareId) REFERENCES notes(notesid);
-    FOREIGN KEY (reqToId) REFERENCES users(userId),
-    FOREIGN KEY (reqFromId) REFERENCES users(userId)
+    FOREIGN KEY (reqToId) REFERENCES users(userId) ON DELETE CASCADE,
+    FOREIGN KEY (reqFromId) REFERENCES users(userId) ON DELETE CASCADE
 );
 ```
 
@@ -65,29 +65,31 @@ CREATE TABLE IF NOT EXISTS sharedNotes (
     fromId INT NOT NULL,
     noteSharedId INT NOT NULL,
     FOREIGN KEY (noteSharedId) REFERENCES notes(notesId),
-    FOREIGN KEY (toId) REFERENCES users(userId),
-    FOREIGN KEY (fromId) REFERENCES users(userId)sharedNotes
+    FOREIGN KEY (toId) REFERENCES users(userId) ON DELETE CASCADE,
+    FOREIGN KEY (fromId) REFERENCES users(userId)sharedNotes ON DELETE CASCADE
 );
 ```
 
 ## Connection Requests
+
 ```
 CREATE TABLE IF NOT EXISTS connectionReq (
-  conReqId SERIAL PRIMARY KEY, 
-  conReqFrom INT NOT NULL, 
-  conReqTo INT NOT NULL, 
-  FOREIGN KEY (conReqFrom) REFERENCES users(userid), 
-  FOREIGN KEY (conReqTo) REFERENCES users(userid)
+  conReqId SERIAL PRIMARY KEY,
+  conReqFrom INT NOT NULL,
+  conReqTo INT NOT NULL,
+  FOREIGN KEY (conReqFrom) REFERENCES users(userid) ON DELETE CASCADE,
+  FOREIGN KEY (conReqTo) REFERENCES users(userid) ON DELETE CASCADE
 );
 ```
 
-## Connections 
+## Connections
+
 ```
 CREATE TABLE IF NOT EXISTS connections (
-  conId SERIAL PRIMARY KEY, 
-  friendOneId INT NOT NULL, 
-  friendTwoId INT NOT NULL, 
-  FOREIGN KEY (friendOneId) REFERENCES users(userid), 
-  FOREIGN KEY (friendTwoId) REFERENCES users(userid)
+  conId SERIAL PRIMARY KEY,
+  friendOneId INT NOT NULL,
+  friendTwoId INT NOT NULL,
+  FOREIGN KEY (friendOneId) REFERENCES users(userid) ON DELETE CASCADE,
+  FOREIGN KEY (friendTwoId) REFERENCES users(userid) ON DELETE CASCADE
 );
 ```
