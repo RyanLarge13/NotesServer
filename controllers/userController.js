@@ -6,11 +6,12 @@ import signUser from "../auth/signUser.js";
 import ResponseHandler from "../utils/ResponseHandler.js";
 import FormatData from "../utils/FormatData.js";
 import {
-  // sendAdminEmail,
+  sendAdminEmailUserCreateDelete,
   sendChangePasswordEmail,
   sendPasswordReqEmail,
   sendWelcomeEmail,
 } from "../utils/sendMail.js";
+import { searchCountry } from "../utils/countries.js";
 
 const resHandler = new ResponseHandler();
 const formatter = new FormatData();
@@ -154,6 +155,7 @@ class UserController {
 
   async signupUser(req, res) {
     const { username, email, password } = req.body;
+    const ip = req.clientIp;
     if (!username || !email || !password) {
       return resHandler.badRequestError(
         res,
@@ -193,7 +195,8 @@ class UserController {
         const newUserData = newDbUser.rows[0];
         const newToken = signUser(newUserData);
         await sendWelcomeEmail(email, username, password);
-        // await sendAdminEmail(email, username);
+        const country = searchCountry(ip);
+        await sendAdminEmailUserCreateDelete(email, username, country, true);
         return resHandler.successCreate(
           res,
           "Successfully created your new account!",

@@ -1,3 +1,4 @@
+// Base
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -10,13 +11,23 @@ import notesRouter from "./routes/notesRouter.js";
 import foldersRouter from "./routes/foldersRouter.js";
 import conRouter from "./routes/connectionsRouter.js";
 import shareROuter from "./routes/shareRouter.js";
-dotenv.config();
+// Custom utils
+import loadCVSFile from "./utils/countries.js";
 
+// Initialization ------------------------
+dotenv.config();
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const PORT = process.env.PORT || 8080;
 const assetsPath = path.join(__dirname, "assets");
+
+(async () => {
+  loadCVSFile();
+  console.log("CSV data loaded");
+})();
+
+app.set("trust proxy", true);
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
@@ -39,3 +50,4 @@ app.use("/assets", express.static(assetsPath));
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });
+// Initialization --------------------
