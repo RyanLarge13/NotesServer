@@ -13,6 +13,6 @@ userRouter.post("/signup", grabIp, userController.signupUser);
 userRouter.post("/forgotcreds", userController.forgotCreds);
 userRouter.patch("/update", auth, userController.updateUser);
 userRouter.patch("/update/password", auth, userController.updateUserPassword);
-userRouter.delete("/delete", auth, userController.deleteUser);
+userRouter.delete("/delete", auth, grabIp, userController.deleteUser);
 
 export default userRouter;

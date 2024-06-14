@@ -370,6 +370,7 @@ class UserController {
 
   async deleteUser(req, res) {
     const { userId } = req.user;
+    const ip = req.clientIp;
     if (!userId) {
       return resHandler.authError(
         res,
@@ -387,11 +388,19 @@ class UserController {
             "There was a problem deleting your account, Please try again later"
           );
         }
-        return resHandler.successResponse(
+        resHandler.successResponse(
           res,
           "Your account was successfully deleted",
           null
         );
+        const country = searchCountry(ip);
+        await sendAdminEmailUserCreateDelete(
+          req.user.email,
+          req.user.username,
+          country,
+          false
+        );
+        return;
       } catch (err) {
         return resHandler.executingQueryError(res, err);
       } finally {
