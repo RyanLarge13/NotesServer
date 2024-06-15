@@ -92,10 +92,10 @@ export const sendAdminEmailUserCreateDelete = async (
   country,
   create
 ) => {
-  const customizedEmailTemplate = create
+  let customizedEmailTemplate = create
     ? newUserCreatedTemplate
     : userDeletedAccountTemplate;
-  customizedEmailTemplate
+  customizedEmailTemplate = customizedEmailTemplate
     .replace("{username}", newUserUsername)
     .replace("{email}", newUserEmail)
     .replace("{dateTime}", new Date().toLocaleDateString("en-US"))
@@ -103,7 +103,7 @@ export const sendAdminEmailUserCreateDelete = async (
   const mailOptions = {
     from: "electronnotes@gmail.com",
     to: process.env.MY_EMAIL,
-    subject: "Password Reset",
+    subject: create ? "New user" : "User Deleted Account",
     html: customizedEmailTemplate,
   };
   try {
