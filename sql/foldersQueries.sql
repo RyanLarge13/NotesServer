@@ -48,6 +48,8 @@ WHERE userId = $1 AND folderId = ANY($2::int[]);
 DELETE FROM folders
 WHERE userId = $1 AND parentFolderId IS NOT NULL AND parentFolderId = $2;
 
+-- move multiple folders
 UPDATE folders
 SET parentFolderId = $2
-WHERE folderId IN ({folders}) AND userId = $1;
+WHERE folderId IN ({folders}) AND userId = $1
+RETURNING *;

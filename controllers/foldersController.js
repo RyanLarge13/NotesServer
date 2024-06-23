@@ -202,23 +202,30 @@ class FoldersController {
         "You must provide at least 1 folder to update"
       );
     }
-    const templateReplacementValues = Array.from(
-      { length: allFolders.length - 1 },
-      (_, i) => `$${i + 3}`
-    ).join(", ");
     try {
       const foldersClient = await pool.connect();
       try {
+        const placeholders = allFolders
+          .map((_, index) => `$${index + 3}`)
+          .join(", ");
         const preUpdateManyQuery = foldersQueries[11];
         const updateManyQuery = preUpdateManyQuery.replace(
-          { folders },
-          templateReplacementValues
+          "{folders}",
+          placeholders
         );
-        const updateFolders = await foldersClient.query(updateManyQuery, [
+        const updatedFolders = await foldersClient.query(updateManyQuery, [
           userId,
           newParentId,
-          allFolders,
+          ...allFolders,
         ]);
+        if (updatedFolders.rows.length !== allFolders.length) {
+          return resHandler.executingQueryError(res, err);
+        }
+        return resHandler.successResponse(
+          res,
+          "Successfully moved all folders",
+          updatedFolders
+        );
       } catch (err) {
         return resHandler.executingQueryError(res, err);
       } finally {
