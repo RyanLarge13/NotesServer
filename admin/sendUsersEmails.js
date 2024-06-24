@@ -56,6 +56,7 @@ const sendEmail = async () => {
           count++;
         } catch (error) {
           console.error(error);
+          console.log(user);
         }
       });
       console.log(count);
