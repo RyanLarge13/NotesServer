@@ -10,11 +10,11 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const v140Path = path.join(
+const v141Path = path.join(
   __dirname,
-  "../emailTemplates/releaseEmails/v1.4.0.html"
+  "../emailTemplates/releaseEmails/v1.4.1.html"
 );
-const v140Template = await fs.readFile(v140Path, "utf-8");
+const v141Template = await fs.readFile(v141Path, "utf-8");
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -40,7 +40,7 @@ const sendEmail = async () => {
         if (user.email === process.env.MY_SECOND_EMAIL) {
           return;
         }
-        const specificTemplate = v140Template.replace(
+        const specificTemplate = v141Template.replace(
           "{username}",
           user.username
         );
