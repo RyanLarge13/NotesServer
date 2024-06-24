@@ -224,7 +224,7 @@ class FoldersController {
         return resHandler.successResponse(
           res,
           "Successfully moved all folders",
-          updatedFolders
+          { folders: updatedFolders }
         );
       } catch (err) {
         return resHandler.executingQueryError(res, err);
