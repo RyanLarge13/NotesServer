@@ -242,6 +242,56 @@ class NotesController {
       return resHandler.connectionError(res, err, "deleteAUsersNote");
     }
   }
+
+  async favoriteNote(req, res) {
+    const { userId } = req.user;
+    const { noteId, favorite } = req.body;
+    if (!userId) {
+      return resHandler.authError(
+        res,
+        "Please try to login again there was a problem authenticating who you are"
+      );
+    }
+    const validId = validator.validateString(noteId);
+    const validTrashBool = validator.validateBool(favorite);
+    if (!noteId || !validTrashBool || !validId) {
+      return resHandler.badRequestError(res, validId.error);
+    }
+    try {
+      const notesClient = await pool.connect();
+      try {
+        const query = notesQueries[12];
+        const movedNote = await notesClient.query(query, [
+          userId,
+          noteId,
+          favorite,
+        ]);
+        if (movedNote.rows < 1) {
+          return resHandler.serverError(
+            res,
+            `There was a problem ${
+              favorite ? "favoring" : "un-favoring"
+            } your note, Please try again later`
+          );
+        }
+        return resHandler.successResponse(
+          res,
+          `Your note was successfully ${
+            favorite ? "favored" : "un-favored from your list"
+          }`,
+          movedNote.rows
+        );
+      } catch (err) {
+        console.log(err);
+        return resHandler.executingQueryError(res, err);
+      } finally {
+        notesClient.release();
+      }
+    } catch (err) {
+      console.log(err);
+      return resHandler.connectionError(res, err, "favoriteNote");
+    }
+  }
 }
 
 export default NotesController;

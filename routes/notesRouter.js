@@ -10,5 +10,6 @@ notesRouter.post("/create", auth, notesController.createAUsersNote);
 notesRouter.patch("/update", auth, notesController.updateAUsersNote);
 notesRouter.patch("/movetotrash", auth, notesController.moveNoteToTrash);
 notesRouter.delete("/delete/:noteId", auth, notesController.deleteAUsersNote);
+notesRouter.patch("/favorite", auth, notesController.favoriteNote);
 
 export default notesRouter;

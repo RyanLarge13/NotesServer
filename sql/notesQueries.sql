@@ -57,3 +57,9 @@ UPDATE notes
 SET trashed = $3
 WHERE userId = $1 AND notesId = $2
 RETURNING *;
+
+-- Favorite a note
+UPDATE notes 
+SET favorite = $3
+WHERE userId = $1 AND notesId = $2
+RETURNING *;

@@ -1,0 +1,2 @@
+ALTER TABLE Notes
+ADD COLUMN favorite BOOLEAN DEFAULT false;
