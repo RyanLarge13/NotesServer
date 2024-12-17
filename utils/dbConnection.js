@@ -12,10 +12,10 @@ dotenv.config();
 // });
 
 const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
+  user: process.env.DB_USER_RW,
+  host: process.env.DB_HOST_RW,
+  database: process.env.DB_NAME_RW,
+  password: process.env.DB_PASSWORD_RW,
   port: 5432,
 });
 

@@ -261,12 +261,12 @@ class NotesController {
       const notesClient = await pool.connect();
       try {
         const query = notesQueries[12];
-        const movedNote = await notesClient.query(query, [
+        const favoredNote = await notesClient.query(query, [
           userId,
           notesId,
           favorite,
         ]);
-        if (movedNote.rows < 1) {
+        if (favoredNote.rows < 1) {
           return resHandler.serverError(
             res,
             `There was a problem ${
@@ -279,7 +279,7 @@ class NotesController {
           `Your note was successfully ${
             favorite ? "favored" : "un-favored from your list"
           }`,
-          movedNote.rows
+          favoredNote.rows
         );
       } catch (err) {
         console.log(err);
