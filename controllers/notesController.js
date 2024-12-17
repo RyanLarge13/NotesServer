@@ -245,16 +245,16 @@ class NotesController {
 
   async favoriteNote(req, res) {
     const { userId } = req.user;
-    const { noteId, favorite } = req.body;
+    const { notesId, favorite } = req.body;
     if (!userId) {
       return resHandler.authError(
         res,
         "Please try to login again there was a problem authenticating who you are"
       );
     }
-    const validId = validator.validateString(noteId);
+    const validId = validator.validateString(notesId);
     const validTrashBool = validator.validateBool(favorite);
-    if (!noteId || !validTrashBool || !validId) {
+    if (!notesId || !validTrashBool || !validId) {
       return resHandler.badRequestError(res, validId.error);
     }
     try {
@@ -263,7 +263,7 @@ class NotesController {
         const query = notesQueries[12];
         const movedNote = await notesClient.query(query, [
           userId,
-          noteId,
+          notesId,
           favorite,
         ]);
         if (movedNote.rows < 1) {
