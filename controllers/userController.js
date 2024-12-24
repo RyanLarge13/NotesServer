@@ -12,11 +12,12 @@ import {
   sendWelcomeEmail,
 } from "../utils/sendMail.js";
 import { searchCountry } from "../utils/countries.js";
+import { fileURLToPath } from "url";
 
 const resHandler = new ResponseHandler();
 const formatter = new FormatData();
 
-const __filename = new URL(import.meta.url).pathname;
+const __filename = fileURLToPath(import.meta.url); // Correctly convert the URL to a path
 const __dirname = path.dirname(__filename);
 
 const userQueriesPath = path.join(__dirname, "../sql/userQueries.sql");

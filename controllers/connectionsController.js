@@ -12,11 +12,12 @@ import {
   sendConnectionReqEmail,
   sendNewConnectionEmail,
 } from "../utils/sendMail.js";
+import { fileURLToPath } from "url";
 
 const resHandler = new ResponseHandler();
 // const validator = new Validator();
 
-const __filename = new URL(import.meta.url).pathname;
+const __filename = fileURLToPath(import.meta.url); // Correctly convert the URL to a path
 const __dirname = path.dirname(__filename);
 
 const conQueryPath = path.join(__dirname, "../sql/conQueries.sql");
