@@ -30,6 +30,7 @@ SELECT
   	notes.folderId AS noteFolderId,
   	notes.createdAt AS noteCreatedAt,
 	notes.trashed AS trashed,
+	notes.favorite AS favorite,
 	notes.updated AS noteUpdated,
 	connectionReq.conReqId,
 	connections.conId,
@@ -41,6 +42,7 @@ SELECT
     sharedNote.folderId AS sharedNoteFolderId,
     sharedNote.createdAt AS sharedNoteCreatedAt,
     sharedNote.trashed AS sharedNoteTrashed,
+	sharedNote.favorite AS sharedNoteFavorite,
     sharedNote.updated AS sharedNoteUpdated,
    CASE 
         WHEN connectionReq.conReqFrom = users.userId THEN toUser.email
