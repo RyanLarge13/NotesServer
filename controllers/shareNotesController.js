@@ -14,87 +14,82 @@ const __dirname = path.dirname(__filename);
 const shareQueryPath = path.join(__dirname, "../sql/shareQueries.sql");
 const shareQueries = fs.readFileSync(shareQueryPath, "utf-8").split(";");
 
+async function findUser(shareClient, toEmail, res) {
+  const findUserQuery = shareQueries[0];
+  try {
+    const foundUser = shareClient.query(findUserQuery, [toEmail]);
+    if (foundUser.rows.length < 1) {
+      return { found: false, data: null, error: false };
+    }
+    return { found: true, data: foundUser.rows[0], error: false };
+  } catch (err) {
+    console.log(err);
+    resHandler.executingQueryError(
+      res,
+      "There was a problem on the server. Please try to make your request again and if the issue persists, contact the developer at ryanlarge@ryanlarge.dev"
+    );
+    return { found: false, data: null, error: true };
+  }
+}
+
+async function findNote(shareClient, noteId, userId, res) {
+  const findNoteQuery = shareQueries[1];
+  try {
+    const foundNote = await shareClient.query(findNoteQuery, [noteId, userId]);
+    if (foundNote.rows.length < 1) {
+      return { found: false, data: foundNote.rows[0], error: false };
+    }
+    return { found: true, data: foundNote.rows[0], error: false };
+  } catch (err) {
+    console.log(err);
+    resHandler.executingQueryError(
+      res,
+      "There was a problem on the server. Please try to make your request again and if the issue persists, contact the developer at ryanlarge@ryanlarge.dev"
+    );
+    return { found: false, data: null, error: true };
+  }
+}
+
+async function checkConnection(shareClient, otherUserId, userId, res) {
+  const connectionQuery = shareQueries[2];
+  try {
+    const connection = await shareClient.query(connectionQuery, [
+      otherUserId,
+      userId,
+    ]);
+    if (connection.rows.length < 1) {
+      return { found: false, data: null, error: false };
+    }
+    return { found: true, data: connection.rows[0], error: false };
+  } catch (err) {
+    resHandler.executingQueryError(
+      res,
+      "There was a problem on the server. Please try to make your request again and if the issue persists, contact the developer at ryanlarge@ryanlarge.dev"
+    );
+    return { found: false, data: null, error: true };
+  }
+}
+
+async function checkForShareRequest(shareClient, shareReqId, res) {
+  const shareReqQuery = shareQueries[4];
+  try {
+    const shareReqExists = await shareClient.query(shareReqQuery, [shareReqId]);
+    if (shareReqExists.rows.length < 1) {
+      return { found: false, data: null, error: false };
+    }
+    return { found: true, data: shareReqExists.rows[0], error: false };
+  } catch (err) {
+    console.log(err);
+    resHandler.executingQueryError(
+      res,
+      "There was a problem on the server. Please try to make your request again and if the issue persists, contact the developer at ryanlarge@ryanlarge.dev"
+    );
+    return { found: false, data: null, error: true };
+  }
+}
+
 class ShareController {
   constructor() {}
-
-  async findUser(shareClient, toEmail, res) {
-    const findUserQuery = shareQueries[0];
-    try {
-      const foundUser = shareClient.query(findUserQuery, [toEmail]);
-      if (foundUser.rows.length < 1) {
-        return { found: false, data: null, error: false };
-      }
-      return { found: true, data: foundUser.rows[0], error: false };
-    } catch (err) {
-      console.log(err);
-      resHandler.executingQueryError(
-        res,
-        "There was a problem on the server. Please try to make your request again and if the issue persists, contact the developer at ryanlarge@ryanlarge.dev"
-      );
-      return { found: false, data: null, error: true };
-    }
-  }
-
-  async findNote(shareClient, noteId, userId, res) {
-    const findNoteQuery = shareQueries[1];
-    try {
-      const foundNote = await shareClient.query(findNoteQuery, [
-        noteId,
-        userId,
-      ]);
-      if (foundNote.rows.length < 1) {
-        return { found: false, data: foundNote.rows[0], error: false };
-      }
-      return { found: true, data: foundNote.rows[0], error: false };
-    } catch (err) {
-      console.log(err);
-      resHandler.executingQueryError(
-        res,
-        "There was a problem on the server. Please try to make your request again and if the issue persists, contact the developer at ryanlarge@ryanlarge.dev"
-      );
-      return { found: false, data: null, error: true };
-    }
-  }
-
-  async checkConnection(shareClient, otherUserId, userId, res) {
-    const connectionQuery = shareQueries[2];
-    try {
-      const connection = await shareClient.query(connectionQuery, [
-        otherUserId,
-        userId,
-      ]);
-      if (connection.rows.length < 1) {
-        return { found: false, data: null, error: false };
-      }
-      return { found: true, data: connection.rows[0], error: false };
-    } catch (err) {
-      resHandler.executingQueryError(
-        res,
-        "There was a problem on the server. Please try to make your request again and if the issue persists, contact the developer at ryanlarge@ryanlarge.dev"
-      );
-      return { found: false, data: null, error: true };
-    }
-  }
-
-  async checkForShareRequest(shareClient, shareReqId, res) {
-    const shareReqQuery = shareQueries[4];
-    try {
-      const shareReqExists = await shareClient.query(shareReqQuery, [
-        shareReqId,
-      ]);
-      if (shareReqExists.rows.length < 1) {
-        return { found: false, data: null, error: false };
-      }
-      return { found: true, data: shareReqExists.rows[0], error: false };
-    } catch (err) {
-      console.log(err);
-      resHandler.executingQueryError(
-        res,
-        "There was a problem on the server. Please try to make your request again and if the issue persists, contact the developer at ryanlarge@ryanlarge.dev"
-      );
-      return { found: false, data: null, error: true };
-    }
-  }
 
   async createShareReq(req, res) {
     const user = req.user;
@@ -114,7 +109,7 @@ class ShareController {
     try {
       try {
         const shareClient = await pool.connect();
-        const toEmailExists = await this.findUser(shareClient, toEmail, res);
+        const toEmailExists = await findUser(shareClient, toEmail, res);
         if (toEmailExists.error) return;
         if (!toEmailExists.found) {
           return resHandler.badRequestError(
@@ -122,7 +117,7 @@ class ShareController {
             "No user with that email exists in our database. Please make sure you are submitting the correct email for sharing your note."
           );
         }
-        const noteExists = await this.findNote(
+        const noteExists = await findNote(
           shareClient,
           note.noteid,
           user.userId,
@@ -200,7 +195,7 @@ class ShareController {
     }
     try {
       const shareClient = await pool.connect();
-      const shareRequestExists = await this.checkForShareRequest(
+      const shareRequestExists = await checkForShareRequest(
         shareClient,
         shareId,
         res
@@ -253,11 +248,7 @@ class ShareController {
       );
     }
     try {
-      const existingReq = await this.checkForShareRequest(
-        shareClient,
-        shareId,
-        res
-      );
+      const existingReq = await checkForShareRequest(shareClient, shareId, res);
       if (existingReq.error) return;
       if (existingReq.found) {
         return resHandler.badRequestError(
@@ -306,7 +297,7 @@ class ShareController {
     try {
       const shareClient = await pool.connect();
       try {
-        const shareReqExists = await this.checkForShareRequest(
+        const shareReqExists = await checkForShareRequest(
           shareClient,
           shareId,
           res
