@@ -17,7 +17,7 @@ const shareQueries = fs.readFileSync(shareQueryPath, "utf-8").split(";");
 async function findUser(shareClient, toEmail, res) {
   const findUserQuery = shareQueries[0];
   try {
-    const foundUser = shareClient.query(findUserQuery, [toEmail]);
+    const foundUser = await shareClient.query(findUserQuery, [toEmail]);
     if (foundUser.rows.length < 1) {
       return { found: false, data: null, error: false };
     }
@@ -152,9 +152,13 @@ class ShareController {
           );
         }
         const createShareReqQuery = shareQueries[3];
+        console.log(
+          `About to make query to create a new sharing note request. Data: \n toEmail: ${toEmailExists.data.userid} \n from user: ${user.userid} \n noteid: ${noteExists.data.notesid}`
+        );
+        console.log(user);
         const newShareRequest = await shareClient.query(createShareReqQuery, [
-          userId,
           toEmailExists.data.userid,
+          user.userId,
           noteExists.data.notesid,
         ]);
         if (newShareRequest.rows.length < 1) {
@@ -215,7 +219,7 @@ class ShareController {
         if (deletedReq.rows.length < 1) {
           return resHandler.serverError(
             res,
-            "There was a problem on the server cancwlimg your share request. Please try again, if the issue persists contact the developer at ryanlarge@ryanlarge.dev"
+            "There was a problem on the server canceling your share request. Please try again, if the issue persists contact the developer at ryanlarge@ryanlarge.dev"
           );
         }
         return resHandler.successResponse(
