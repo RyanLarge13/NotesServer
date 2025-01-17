@@ -61,7 +61,8 @@ SELECT
 		ELSE shareReqFrom.email
 	END AS shareRequestsEmail,
 	shareReqFrom.email AS shareReqFromEmail,
-	shareReqTo.email AS shareReqToEmail
+	shareReqTo.email AS shareReqToEmail,
+	shareRequests.noteToShareId AS shareReqNoteId
 FROM
     users
 LEFT JOIN
