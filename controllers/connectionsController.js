@@ -171,10 +171,11 @@ class ConController {
     if (!user) {
       return resHandler.authError(
         res,
-        "You must loggin first to cancel a connection request"
+        "You must login first to cancel a connection request"
       );
     }
     const connectionReqId = req.body;
+    console.log(req.body);
     if (!connectionReqId) {
       return resHandler.badRequestError(
         res,
