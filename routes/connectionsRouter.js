@@ -9,7 +9,7 @@ conRouter.post("/create", auth, conController.createConnection);
 conRouter.delete("/remove", auth, conController.removeCon);
 conRouter.post("/create/request", auth, conController.createReqCon);
 conRouter.delete(
-  "/remove/request",
+  "/remove/request/:conreqid",
   auth,
   conController.cancelExistingConnectionReq
 );

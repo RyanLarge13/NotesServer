@@ -10,9 +10,9 @@ import userRouter from "./routes/userRoutes.js";
 import notesRouter from "./routes/notesRouter.js";
 import foldersRouter from "./routes/foldersRouter.js";
 import conRouter from "./routes/connectionsRouter.js";
-import shareROuter from "./routes/shareRouter.js";
 // Custom utils
 import loadCVSFile from "./utils/countries.js";
+import shareRouter from "./routes/shareRouter.js";
 
 // Initialization ------------------------
 dotenv.config();
@@ -44,7 +44,7 @@ app.use("/users", userRouter);
 app.use("/notes", notesRouter);
 app.use("/folders", foldersRouter);
 app.use("/connect", conRouter);
-app.use("/share", shareROuter);
+app.use("/share", shareRouter);
 app.use("/assets", express.static(assetsPath));
 
 app.listen(PORT, "0.0.0.0", () => {

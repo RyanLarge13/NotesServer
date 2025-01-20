@@ -184,7 +184,7 @@ class ShareController {
 
   async removeShareReq(req, res) {
     const user = req.user;
-    const { shareId } = req.body;
+    const shareId = req.params.sharereqid;
     if (!user) {
       return resHandler.authError(
         res,

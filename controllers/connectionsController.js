@@ -174,8 +174,8 @@ class ConController {
         "You must login first to cancel a connection request"
       );
     }
-    const connectionReqId = req.body;
-    console.log(req.body);
+    const connectionReqId = req.params.conreqid;
+    console.log(req.params);
     if (!connectionReqId) {
       return resHandler.badRequestError(
         res,

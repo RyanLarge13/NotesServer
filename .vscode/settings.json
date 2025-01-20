@@ -1,3 +1,10 @@
 {
-  "cSpell.words": ["noteid", "notesid", "sharednoteid", "userid"]
+  "cSpell.words": [
+    "conreqid",
+    "noteid",
+    "notesid",
+    "sharednoteid",
+    "sharereqid",
+    "userid"
+  ]
 }

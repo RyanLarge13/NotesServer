@@ -8,6 +8,10 @@ const shareController = new ShareController();
 shareRouter.post("/create", auth, shareController.createShare);
 shareRouter.post("/remove", auth, shareController.removeShare);
 shareRouter.post("/create/request", auth, shareController.createShareReq);
-shareRouter.post("/remove/request", auth, shareController.removeShareReq);
+shareRouter.delete(
+  "/remove/request/:sharereqid",
+  auth,
+  shareController.removeShareReq
+);
 
 export default shareRouter;
