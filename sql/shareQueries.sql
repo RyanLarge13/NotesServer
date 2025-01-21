@@ -32,5 +32,9 @@ RETURNING *;
 
 -- 7 Delete share
 DELETE FROM sharednotes
-WHERE sahredNoteId = $1;
+WHERE sharedNoteId = $1
 RETURNiNG *;
+
+-- 8 Check if share request exist by users and note
+SELECT * FROM sharerequests
+WHERE reqToId = $1 AND reqFromId = $2 OR reqToId = $2 AND reqFromId = $1 AND noteToShareId = $3;

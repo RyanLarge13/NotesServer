@@ -4,6 +4,10 @@ import Validator from "../utils/ValidateData.js";
 import pool from "../utils/dbConnection.js";
 import fs from "fs";
 import path from "path";
+import {
+  checkForExistingConnection,
+  checkForExistingShareRequest,
+} from "../utils/helpers.js";
 
 const resHandler = new ResponseHandler();
 const validator = new Validator();
@@ -291,6 +295,90 @@ class NotesController {
     } catch (err) {
       console.log(err);
       return resHandler.connectionError(res, err, "favoriteNote");
+    }
+  }
+
+  async fetchASingleNote(req, res) {
+    const { userId } = req.user;
+    const noteId = req.params.noteid;
+
+    if (!userId) {
+      return resHandler.authError(
+        res,
+        "You are not authorized to make this request"
+      );
+    }
+    if (!noteId) {
+      return resHandler.badRequestError(
+        res,
+        "Please provide the note you want to fetch data for"
+      );
+    }
+
+    try {
+      const poolCon = await pool.connect();
+      try {
+        const noteQuery = notesQueries[10];
+        const note = await poolCon.query(noteQuery, [noteId]);
+
+        if (note.rows.length < 1) {
+          return resHandler.badRequestError(
+            res,
+            "There was a problem fetching this notes information, it is possible it has recently been deleted"
+          );
+        }
+
+        const noteUser = note.rows[0].userid;
+        if (noteUser === userId) {
+          return resHandler.successResponse(
+            res,
+            "Successfully fetched your note",
+            { note: note.rows[0] }
+          );
+        } else {
+          const shareReqExists = await checkForExistingShareRequest(
+            poolCon,
+            userId,
+            note.rows[0].userid,
+            noteId
+          );
+          if (!shareReqExists) {
+            const connectionExists = await checkForExistingConnection(
+              poolCon,
+              userId,
+              noteUser,
+              res
+            );
+            if (!connectionExists) {
+              return resHandler.badRequestError(
+                res,
+                "You are not authorized access to this notes information. Perhaps this note is no longer being shared with you"
+              );
+            } else {
+              return resHandler.successResponse(
+                res,
+                "Shared note data successfully received",
+                { note: note.rows[0] }
+              );
+            }
+          } else {
+            return resHandler.successResponse(
+              res,
+              "Shared note data successfully received",
+              { note: note.rows[0] }
+            );
+          }
+        }
+      } catch (err) {
+        console.log(err);
+        return resHandler.executingQueryError(
+          res,
+          "There was a problem with your request, please try again"
+        );
+      }
+    } catch (err) {
+      console.log(err);
+      return resHandler.connectionError(res, err, "fetchASingleNote");
     }
   }
 }

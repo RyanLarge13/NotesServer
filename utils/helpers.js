@@ -17,9 +17,12 @@ const foldersQueries = fs.readFileSync(foldersQueriesPath, "utf-8").split(";");
 // Queries to manipulate notes
 const notesQueriesPath = path.join(__dirname, "../sql/notesQueries.sql");
 const notesQueries = fs.readFileSync(notesQueriesPath, "utf-8").split(";");
-
+// Queries for connections
 const conQueryPath = path.join(__dirname, "../sql/conQueries.sql");
 const conQueries = fs.readFileSync(conQueryPath, "utf-8").split(";");
+// Queries for share requests
+const shareReqQueryPath = path.join(__dirname, "../sql/shareQueries.sql");
+const shareReqQueries = fs.readFileSync(shareReqQueryPath, "utf-8").split(";");
 
 export const findRequesteesId = async (conClient, userEmail, res) => {
   try {
@@ -150,5 +153,29 @@ export const addMultiFoldersAndNotes = async (
       newFoldersArray,
       newNotesArray
     );
+  }
+};
+
+export const checkForExistingShareRequest = async (
+  pool,
+  userId,
+  requestId,
+  noteId
+) => {
+  try {
+    const query = shareReqQueries[8];
+
+    const shareExists = await pool.query(query, [userId, requestId, noteId]);
+
+    if (shareExists.rows.length < 1) {
+      return false;
+    } else {
+      return true;
+    }
+  } catch (err) {
+    console.log(
+      `Error when calling helper function check for existing share request, error: ${err}`
+    );
+    return false;
   }
 };

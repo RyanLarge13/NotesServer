@@ -122,6 +122,8 @@ class FormatData {
         sharednotetrashed,
         sharednoteupdated,
         sharereqnoteid,
+        sharereqnotetitle,
+        sharereqnotecreatedat,
         // connectionreqemail,
         fromuseremail,
         touseremail,
@@ -167,7 +169,11 @@ class FormatData {
           shareReqId: reqid,
           userOne: sharereqfromemail,
           userTwo: sharereqtoemail,
-          noteId: sharereqnoteid,
+          note: {
+            noteId: sharereqnoteid,
+            title: sharereqnotetitle,
+            createdAt: sharereqnotecreatedat,
+          },
         };
         organizedData.shareRequests.push(shareRequest);
       }
