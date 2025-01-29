@@ -38,3 +38,7 @@ RETURNiNG *;
 -- 8 Check if share request exist by users and note
 SELECT * FROM sharerequests
 WHERE reqToId = $1 AND reqFromId = $2 OR reqToId = $2 AND reqFromId = $1 AND noteToShareId = $3;
+
+-- 9 Check if a note is being shared to a user
+SELECT sharednoteid FROM sharednotes 
+WHERE noteSharedId = $1 AND toId = $2;

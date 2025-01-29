@@ -124,6 +124,9 @@ class FormatData {
         sharereqnoteid,
         sharereqnotetitle,
         sharereqnotecreatedat,
+        sharenotesfromid,
+        conuseridone,
+        conuseridtwo,
         // connectionreqemail,
         fromuseremail,
         touseremail,
@@ -147,6 +150,8 @@ class FormatData {
           conid,
           userOne: conuseremailone,
           userTwo: conuseremailtwo,
+          idOne: conuseridone,
+          idTwo: conuseridtwo,
         };
         organizedData.connections.push(con);
       }
@@ -203,27 +208,22 @@ class FormatData {
         };
         organizedData.notes.push(note);
       }
-      if (doesNotExist(organizedData.notes, sharednoteid, "noteid") && noteid) {
-        if (
-          doesNotExist(
-            organizedData.sharedNotes,
-            sharednoteid,
-            "sharenoteid"
-          ) &&
-          sharednoteid
-        ) {
-          const sharedNote = {
-            sharednoteid,
-            sharednotetitle,
-            sharednotelocked,
-            sharednotehtmltext,
-            sharednotefolderid,
-            sharednotecreatedat,
-            sharednotetrashed,
-            sharednoteupdated,
-          };
-          organizedData.sharedNotes.push(sharedNote);
-        }
+      if (
+        doesNotExist(organizedData.sharedNotes, sharednoteid, "sharednoteid") &&
+        sharednoteid
+      ) {
+        const sharedNote = {
+          sharednoteid,
+          sharednotetitle,
+          sharednotelocked,
+          sharednotehtmltext,
+          sharednotefolderid,
+          sharednotecreatedat,
+          sharednotetrashed,
+          sharednoteupdated,
+          from: sharenotesfromid,
+        };
+        organizedData.sharedNotes.push(sharedNote);
       }
     });
     return organizedData;

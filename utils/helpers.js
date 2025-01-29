@@ -179,3 +179,18 @@ export const checkForExistingShareRequest = async (
     return false;
   }
 };
+
+export const checkForExistingShare = async (pool, noteId, userId) => {
+  try {
+    const query = shareReqQueries[9];
+    const shareExists = await pool.query(query, [noteId, userId]);
+    if (shareExists.rows.length < 1) {
+      return false;
+    } else {
+      return true;
+    }
+  } catch (err) {
+    console.log(`Error checking for existing shared note. Error: ${err}`);
+    return false;
+  }
+};

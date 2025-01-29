@@ -63,3 +63,9 @@ UPDATE notes
 SET favorite = $3
 WHERE userId = $1 AND notesId = $2
 RETURNING *;
+
+-- Update a note text. Dangerous! Only use after serious authentication and authorization checks on your server
+UPDATE notes
+SET title = $2, htmlNotes = $3, locked = $4, folderId = $5, updated = CURRENT_TIMESTAMP
+WHERE notesId = $1
+RETURNING *;

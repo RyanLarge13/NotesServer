@@ -252,31 +252,45 @@ class ShareController {
       );
     }
     try {
-      const existingReq = await checkForShareRequest(shareClient, shareId, res);
-      if (existingReq.error) return;
-      if (existingReq.found) {
-        return resHandler.badRequestError(
+      const shareClient = await pool.connect();
+      try {
+        const existingReq = await checkForShareRequest(
+          shareClient,
+          shareId,
+          res
+        );
+        if (existingReq.error) return;
+        if (!existingReq.found) {
+          return resHandler.badRequestError(
+            res,
+            "You already are sharing this note with another user"
+          );
+        }
+        const newShareQuery = shareQueries[6];
+        const newShare = await shareClient.query(newShareQuery, [
+          existingReq.data.reqtoid,
+          existingReq.data.reqfromid,
+          existingReq.data.notetoshareid,
+        ]);
+        await shareClient.query(shareQueries[5], [existingReq.data.reqid]);
+        if (newShare.rows.length < 1) {
+          return resHandler.serverError(
+            res,
+            "We had an issue creating the new connection for sharing this note. Please try again, and if the issue persists, contact the developer at rynalarge@ryanlareg.dev"
+          );
+        }
+        return resHandler.successCreate(
           res,
-          "You already are sharing this note with another user"
+          "You and your connection can now successfully collaborate on this note",
+          newShare.rows[0]
+        );
+      } catch (err) {
+        console.log(err);
+        return resHandler.executingQueryError(
+          res,
+          `There was a problem accepting this note`
         );
       }
-      const newShareQuery = shareQueries[6];
-      const newShare = await shareClient.query(newShareQuery, [
-        existingReq.reqToId,
-        existingReq.reqFromId,
-        existingReq.noteToShareId,
-      ]);
-      if (newShare.rows.length < 1) {
-        return resHandler.serverError(
-          res,
-          "We had an issue creating the new connection for sharing this note. Please try again, and if the issue persists, contact the developer at rynalarge@ryanlareg.dev"
-        );
-      }
-      return resHandler.succussCreate(
-        res,
-        "You and your connection can now successfully collaborate on this note",
-        newShare.rows[0]
-      );
     } catch (err) {
       console.log(err);
       return resHandler.connectionError(res, err, "removeShareReq");

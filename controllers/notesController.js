@@ -6,6 +6,7 @@ import fs from "fs";
 import path from "path";
 import {
   checkForExistingConnection,
+  checkForExistingShare,
   checkForExistingShareRequest,
 } from "../utils/helpers.js";
 
@@ -136,10 +137,37 @@ class NotesController {
           folderId,
         ]);
         if (noteUpdate.rows.length < 1) {
-          return resHandler.serverError(
-            res,
-            "There was a problem updating your note. Please give us some time to fix the problem and try again in a few seconds"
-          );
+          if (!checkForExistingShare(notesClient, notesId, userId)) {
+            return resHandler.badRequestError(
+              res,
+              "You are not authorized to update this note"
+            );
+          } else {
+            try {
+              const sharedNoteUpdated = await notesClient.query(
+                notesQueries[13],
+                [notesId, title, htmlNotes, locked, folderId]
+              );
+
+              if (sharedNoteUpdated.rows.length < 1) {
+                return resHandler.serverError(
+                  res,
+                  "There was a problem updating your shared note. Please give us some time to fix the problem and try again in a few seconds"
+                );
+              } else {
+                return resHandler.successResponse(
+                  res,
+                  "Successfully updated your shared note",
+                  noteUpdate.rows
+                );
+              }
+            } catch (err) {
+              return resHandler.serverError(
+                res,
+                "There was a problem updating your note. Please give us some time to fix the problem and try again in a few seconds"
+              );
+            }
+          }
         }
         return resHandler.successResponse(
           res,

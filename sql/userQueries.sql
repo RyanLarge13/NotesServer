@@ -44,6 +44,7 @@ SELECT
     sharedNote.trashed AS sharedNoteTrashed,
 	sharedNote.favorite AS sharedNoteFavorite,
     sharedNote.updated AS sharedNoteUpdated,
+	sharedNotes.fromId AS shareNotesFromId,
 	shareReqNote.notesId AS shareReqNoteId,
     shareReqNote.title AS shareReqNoteTitle,
     shareReqNote.createdAt AS shareReqNoteCreatedAt,
@@ -59,6 +60,8 @@ SELECT
     END AS connectionEmail,
     conOneUser.email AS conUserEmailOne,
     conTwoUser.email AS conUserEmailTwo,
+	conOneUser.userId AS conUserIdOne,
+    conTwoUser.userId AS conUserIdTwo,
 	CASE 
 		WHEN shareRequests.reqFromId = users.userId THEN shareReqTo.email
 		ELSE shareReqFrom.email
