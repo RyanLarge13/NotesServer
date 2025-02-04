@@ -88,6 +88,32 @@ async function checkForShareRequest(shareClient, shareReqId, res) {
   }
 }
 
+async function checkForShareRequestWithoutId(
+  shareClient,
+  userOneId,
+  userTwoId,
+  noteid
+) {
+  const shareReqQuery = shareQueries[8];
+  try {
+    const req = await shareClient.query(shareReqQuery, [
+      userOneId,
+      userTwoId,
+      noteid,
+    ]);
+    if (req.rows.length < 1) {
+      return { found: false, data: null, error: false };
+    } else {
+      return { found: true, data: req.rows[0], error: false };
+    }
+  } catch (err) {
+    console.log(
+      `Error finding share request calling checkForShareRequestWithoutId. Error: ${err}`
+    );
+    return { found: false, data: null, error: true };
+  }
+}
+
 class ShareController {
   constructor() {}
 
@@ -107,8 +133,8 @@ class ShareController {
       );
     }
     try {
+      const shareClient = await pool.connect();
       try {
-        const shareClient = await pool.connect();
         const toEmailExists = await findUser(shareClient, toEmail, res);
         if (toEmailExists.error) return;
         if (!toEmailExists.found) {
@@ -151,6 +177,27 @@ class ShareController {
             "We are having issues retrieving data from our records right now. Please, try to share this note again and if the issue persists, contact the developer at ryanlarge@ryanlarge.dev"
           );
         }
+        const shareReqAlreadyExists = checkForShareRequestWithoutId(
+          shareClient,
+          toEmailExists.data.userid,
+          user.userId,
+          note.noteid
+        );
+
+        if (shareReqAlreadyExists.error) {
+          return resHandler.serverError(
+            res,
+            "We ran into trouble querying your data. Please try gain and if the issue persists, contact the developer"
+          );
+        }
+
+        if (shareReqAlreadyExists.found) {
+          return resHandler.badRequestError(
+            res,
+            "You already have a share request send to this user for that note"
+          );
+        }
+
         const createShareReqQuery = shareQueries[3];
         console.log(
           `About to make query to create a new sharing note request. Data: \n toEmail: ${toEmailExists.data.userid} \n from user: ${user.userid} \n noteid: ${noteExists.data.notesid}`
@@ -260,7 +307,7 @@ class ShareController {
           res
         );
         if (existingReq.error) return;
-        if (!existingReq.found) {
+        if (existingReq.found) {
           return resHandler.badRequestError(
             res,
             "You already are sharing this note with another user"

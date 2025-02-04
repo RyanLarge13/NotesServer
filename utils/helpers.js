@@ -83,8 +83,7 @@ export const checkForExistingRequest = async (
 export const checkForExistingConnection = async (
   conClient,
   userId,
-  requestUserId,
-  res
+  requestUserId
 ) => {
   const existingConQuery = conQueries[3];
   const existingCon = await conClient.query(existingConQuery, [
@@ -92,10 +91,6 @@ export const checkForExistingConnection = async (
     requestUserId,
   ]);
   if (existingCon.rows.length > 0) {
-    // resHandler.badRequestError(
-    //   res,
-    //   "You already have an active connection with this user"
-    // );
     return true;
   }
   return false;

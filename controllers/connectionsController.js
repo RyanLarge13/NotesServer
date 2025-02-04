@@ -135,8 +135,7 @@ class ConController {
         const existingConnection = await checkForExistingConnection(
           remConClient,
           user.userId,
-          conUserId,
-          res
+          conUserId.userid
         );
         if (existingConnection) {
           return;
