@@ -177,13 +177,12 @@ class ShareController {
             "We are having issues retrieving data from our records right now. Please, try to share this note again and if the issue persists, contact the developer at ryanlarge@ryanlarge.dev"
           );
         }
-        const shareReqAlreadyExists = checkForShareRequestWithoutId(
+        const shareReqAlreadyExists = await checkForShareRequestWithoutId(
           shareClient,
           toEmailExists.data.userid,
           user.userId,
           note.noteid
         );
-
         if (shareReqAlreadyExists.error) {
           return resHandler.serverError(
             res,
@@ -194,15 +193,11 @@ class ShareController {
         if (shareReqAlreadyExists.found) {
           return resHandler.badRequestError(
             res,
-            "You already have a share request send to this user for that note"
+            "You are already attempting to share this note with that user"
           );
         }
 
         const createShareReqQuery = shareQueries[3];
-        console.log(
-          `About to make query to create a new sharing note request. Data: \n toEmail: ${toEmailExists.data.userid} \n from user: ${user.userid} \n noteid: ${noteExists.data.notesid}`
-        );
-        console.log(user);
         const newShareRequest = await shareClient.query(createShareReqQuery, [
           toEmailExists.data.userid,
           user.userId,
@@ -388,7 +383,7 @@ class ShareController {
         }
         return resHandler.successResponse(
           res,
-          "YOu have successfully disconnected from sharing this note. You still have access to this note without sharing capabilities",
+          "You have successfully disconnected from sharing this note. You still have access to this note without sharing capabilities",
           null
         );
       } catch (err) {
