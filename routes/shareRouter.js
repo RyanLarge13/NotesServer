@@ -6,8 +6,8 @@ const shareRouter = express.Router();
 const shareController = new ShareController();
 
 shareRouter.post("/create", auth, shareController.createShare);
-shareRouter.post("/remove", auth, shareController.removeShare);
 shareRouter.post("/create/request", auth, shareController.createShareReq);
+shareRouter.delete("/remove/:shareId", auth, shareController.removeShare);
 shareRouter.delete(
   "/remove/request/:sharereqid",
   auth,

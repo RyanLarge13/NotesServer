@@ -180,12 +180,12 @@ export const checkForExistingShare = async (pool, noteId, userId) => {
     const query = shareReqQueries[9];
     const shareExists = await pool.query(query, [noteId, userId]);
     if (shareExists.rows.length < 1) {
-      return false;
+      return { found: false, error: false, data: null };
     } else {
-      return true;
+      return { found: true, error: false, data: shareExists.rows[0] };
     }
   } catch (err) {
     console.log(`Error checking for existing shared note. Error: ${err}`);
-    return false;
+    return { found: false, error: false, data: null };
   }
 };

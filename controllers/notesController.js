@@ -104,7 +104,7 @@ class NotesController {
     }
   }
 
-  async updateAusersNotesPosition(req, res) {}
+  async updateAUsersNotesPosition(req, res) {}
 
   async updateAUsersNote(req, res) {
     const { userId } = req.user;
@@ -407,6 +407,63 @@ class NotesController {
     } catch (err) {
       console.log(err);
       return resHandler.connectionError(res, err, "fetchASingleNote");
+    }
+  }
+
+  async lockOrUnlockANote(req, res) {
+    const { userId } = req.user;
+    const { noteId, lock } = req.body;
+
+    if (!userId) {
+      return resHandler.authError(
+        res,
+        "You are not authorized to make this request. Please log in and try again"
+      );
+    }
+    if (!noteId || typeof lock !== "boolean") {
+      return resHandler.badRequestError(
+        res,
+        "Something went wrong with your request. Please make sure you are trying to update a valid note"
+      );
+    }
+
+    try {
+      const poolConnection = await pool.connect();
+      try {
+        const query = notesQueries[14];
+        const updatedNote = await poolConnection.query(query, [
+          noteId,
+          lock,
+          userId,
+        ]);
+        if (updatedNote.rows.length < 1) {
+          return resHandler.badRequestError(
+            res,
+            "There was an issue processing your request. Please try to update your note again"
+          );
+        }
+        return resHandler.successResponse(
+          res,
+          `Successfully ${lock ? "locked" : "unlocked"} your note`,
+          { note: updatedNote.rows[0] }
+        );
+      } catch (err) {
+        console.log(
+          `Error running query in lockOrUnlockANote @line: 435. Error: ${err}`
+        );
+        return resHandler.serverError(
+          res,
+          "There was a problem on our server. Please try the request again and if the issue persists contact the developer"
+        );
+      }
+    } catch (err) {
+      console.log(
+        `Error connecting to pool in lockOrUnlockANote @line: 427. Error: ${err}`
+      );
+      return resHandler.serverError(
+        res,
+        "There was a problem on our server. Please try the request again and if the issue persists contact the developer"
+      );
     }
   }
 }

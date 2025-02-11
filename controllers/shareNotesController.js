@@ -4,6 +4,7 @@ import Validator from "../utils/ValidateData.js";
 import pool from "../utils/dbConnection.js";
 import fs from "fs";
 import path from "path";
+import { checkForExistingShare } from "../utils/helpers.js";
 
 const resHandler = new ResponseHandler();
 // const validator = new Validator();
@@ -341,7 +342,7 @@ class ShareController {
 
   async removeShare(req, res) {
     const user = req.user;
-    const { shareId } = req.body;
+    const shareId = req.params.shareId;
     if (!user) {
       return resHandler.authError(
         res,
@@ -357,15 +358,12 @@ class ShareController {
     try {
       const shareClient = await pool.connect();
       try {
-        const shareReqExists = await checkForShareRequest(
+        const shareExists = await checkForExistingShare(
           shareClient,
           shareId,
-          res
+          user.userId
         );
-        if (shareReqExists.error) {
-          return;
-        }
-        if (!shareReqExists.found) {
+        if (!shareExists.found || shareExists.error) {
           return resHandler.badRequestError(
             res,
             "You must provide us with a valid shared note to remove this connection"
@@ -373,7 +371,7 @@ class ShareController {
         }
         const removeShareQuery = shareQueries[7];
         const deletedShare = await shareClient.query(removeShareQuery, [
-          shareReqExists.data.sharednoteid,
+          shareExists.data.sharednoteid,
         ]);
         if (deletedShare.rows.length < 1) {
           return resHandler.serverError(
