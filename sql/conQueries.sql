@@ -13,11 +13,11 @@ RETURNING *;
 
 -- 3 check if connection already exists
 SELECT * FROM connections
-WHERE friendOneId = $1 AND friendTwoId = $2 OR friendTwoId = $2 AND friendOneId = $1;
+WHERE (friendOneId = $1 AND friendTwoId = $2) OR (friendTwoId = $1 AND friendOneId = $2);
 
 -- 4 Delete a connection
 DELETE FROM connections
-WHERE friendOneId = $1 AND friendTwoId = $2 OR friendTwoId = $2 AND friendOneId = $1
+WHERE (friendOneId = $1 AND friendTwoId = $2) OR (friendTwoId = $1 AND friendOneId = $2)
 RETURNING *; 
 
 -- 5 Remove existing connection request

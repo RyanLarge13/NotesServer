@@ -31,6 +31,12 @@ class ConController {
     const user = req.user;
     const { userEmail } = req.body;
     // validate email here;
+    if (!user) {
+      return resHandler.authError(
+        res,
+        "Please log back in to send this connection request"
+      );
+    }
     if (!userEmail) {
       return resHandler.badRequestError(
         res,
@@ -43,42 +49,53 @@ class ConController {
         "You cannot send a connection request to your own email"
       );
     }
-    if (!user) {
-      return resHandler.authError(
-        res,
-        "Please log back in to send this connection request"
-      );
-    }
     try {
       const conClient = await pool.connect();
       try {
         const requestUserId = await findRequesteesId(conClient, userEmail, res);
+
+        console.log("Logging user id form user find by email. User: ");
+        console.log(requestUserId);
+
         if (!requestUserId) {
-          return;
+          return resHandler.badRequestError(
+            res,
+            "There is no user in our system with that email. Please invite them to join Electron Notes first"
+          );
         }
         const conReqExists = await checkForExistingRequest(
           conClient,
           user.userId,
-          requestUserId.userid,
+          requestUserId,
           res,
           false
         );
-        if (conReqExists) {
-          return;
+
+        if (conReqExists.exists) {
+          return resHandler.badRequestError(
+            res,
+            "You already have a connection request sent out to this user"
+          );
         }
+
         const existingConnection = await checkForExistingConnection(
           conClient,
           user.userId,
-          requestUserId.userid,
+          requestUserId,
           res
         );
+
         if (existingConnection) {
-          return;
+          return resHandler.badRequestError(
+            res,
+            "You already have a connection to this user. Maybe you typed in the email wrong"
+          );
         }
+
         const createConQuery = conQueries[2];
         const newCon = await conClient.query(createConQuery, [
           user.userId,
-          requestUserId.userid,
+          requestUserId,
         ]);
         if (newCon.rows.length < 1) {
           return resHandler.serverError(
@@ -306,7 +323,7 @@ class ConController {
         if (createdConnection.rows.length < 1) {
           return resHandler.serverError(
             res,
-            "There was a problem creating your new connection. Please try to accept this request again. If the issue persists, please contact the developer at ryanlarge@ryanlarge,dev"
+            "There was a problem creating your new connection. Please try to accept this request again. If the issue persists, please contact the developer at ryanlarge@ryanlarge.dev"
           );
         }
         await sendNewConnectionEmail(
