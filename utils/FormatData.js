@@ -125,6 +125,7 @@ class FormatData {
         sharereqnotetitle,
         sharereqnotecreatedat,
         sharenotesfromid,
+        sharenotestoid,
         conuseridone,
         conuseridtwo,
         // connectionreqemail,
@@ -222,6 +223,7 @@ class FormatData {
           sharednotetrashed,
           sharednoteupdated,
           from: sharenotesfromid,
+          to: sharenotestoid,
         };
         organizedData.sharedNotes.push(sharedNote);
       }

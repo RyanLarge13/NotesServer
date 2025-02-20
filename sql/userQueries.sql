@@ -45,6 +45,7 @@ SELECT
 	sharedNote.favorite AS sharedNoteFavorite,
     sharedNote.updated AS sharedNoteUpdated,
 	sharedNotes.fromId AS shareNotesFromId,
+	sharedNotes.toId AS shareNotesToId,
 	shareReqNote.notesId AS shareReqNoteId,
     shareReqNote.title AS shareReqNoteTitle,
     shareReqNote.createdAt AS shareReqNoteCreatedAt,
