@@ -35,7 +35,7 @@ export const findRequesteesId = async (conClient, userEmail, res) => {
       // );
       return "";
     }
-    return userFound.rows[0];
+    return userFound.rows[0].userid;
   } catch (err) {
     console.log(err);
     // resHandler.executingQueryError(res, err);
@@ -57,26 +57,12 @@ export const checkForExistingRequest = async (
       requestUserId,
     ]);
     if (existingReq.rows.length < 1) {
-      if (returnData) {
-        return { exists: false, data: null };
-      }
-      return false;
+      return { exists: false, data: null };
     }
-    // resHandler.badRequestError(
-    //   res,
-    //   "You have already sent this user a connection request"
-    // );
-    if (returnData) {
-      return { exists: true, data: existingReq.rows[0] };
-    }
-    return true;
+    return { exists: true, data: existingReq.rows[0] };
   } catch (err) {
     console.log(err);
-    // resHandler.executingQueryError(res, err);
-    if (returnData) {
-      return { exists: true, data: null };
-    }
-    return true;
+    return { exists: false, data: null };
   }
 };
 
@@ -85,15 +71,23 @@ export const checkForExistingConnection = async (
   userId,
   requestUserId
 ) => {
-  const existingConQuery = conQueries[3];
-  const existingCon = await conClient.query(existingConQuery, [
-    userId,
-    requestUserId,
-  ]);
-  if (existingCon.rows.length > 0) {
-    return true;
+  try {
+    const existingConQuery = conQueries[3];
+    const existingCon = await conClient.query(existingConQuery, [
+      userId,
+      requestUserId,
+    ]);
+    if (existingCon.rows.length > 0) {
+      return true;
+    }
+    return false;
+  } catch (err) {
+    console.log(
+      "Error checking for existing connection in helper function checkForExistingConnection. Error: ",
+      err
+    );
+    return false;
   }
-  return false;
 };
 
 export const addMultiFoldersAndNotes = async (

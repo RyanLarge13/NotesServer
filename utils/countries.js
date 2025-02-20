@@ -33,6 +33,9 @@ const loadCVSFile = async () => {
 export const searchCountry = (ip) => {
   let low = 0;
   let high = objs.length;
+  if (high === 0) {
+   return "no country found";
+  }
   while (low <= high) {
     const mid = Math.floor((low + high) / 2);
     if (objs[mid].start <= ip && objs[mid].end >= ip) {
