@@ -71,7 +71,7 @@ async function checkConnection(shareClient, otherUserId, userId, res) {
   }
 }
 
-async function checkForShareRequest(shareClient, shareReqId, res) {
+async function checkForShareRequest(shareClient, shareReqId) {
   const shareReqQuery = shareQueries[4];
   try {
     const shareReqExists = await shareClient.query(shareReqQuery, [shareReqId]);
@@ -81,10 +81,6 @@ async function checkForShareRequest(shareClient, shareReqId, res) {
     return { found: true, data: shareReqExists.rows[0], error: false };
   } catch (err) {
     console.log(err);
-    resHandler.executingQueryError(
-      res,
-      "There was a problem on the server. Please try to make your request again and if the issue persists, contact the developer at ryanlarge@ryanlarge.dev"
-    );
     return { found: false, data: null, error: true };
   }
 }
@@ -244,8 +240,7 @@ class ShareController {
       const shareClient = await pool.connect();
       const shareRequestExists = await checkForShareRequest(
         shareClient,
-        shareId,
-        res
+        shareId
       );
       if (shareRequestExists.error) {
         return;
@@ -297,16 +292,17 @@ class ShareController {
     try {
       const shareClient = await pool.connect();
       try {
-        const existingReq = await checkForShareRequest(
-          shareClient,
-          shareId,
-          res
-        );
-        if (existingReq.error) return;
-        if (existingReq.found) {
+        const existingReq = await checkForShareRequest(shareClient, shareId);
+        if (existingReq.error) {
+          return resHandler.serverError(
+            res,
+            "There was a problem checking to see if this note is being shared with you or not. Please contact the developer immediately if this issue persists"
+          );
+        }
+        if (!existingReq.found) {
           return resHandler.badRequestError(
             res,
-            "You already are sharing this note with another user"
+            "This note was not sent to you to be shared. Please contact the developer or remove this note manually"
           );
         }
         const newShareQuery = shareQueries[6];
