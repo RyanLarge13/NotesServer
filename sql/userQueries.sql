@@ -100,7 +100,7 @@ LEFT JOIN
 	notes AS shareReqNote ON shareRequests.noteToShareId = shareReqNote.notesid
 	-- Join shared notes
 LEFT JOIN 
-    sharedNotes ON users.userId = sharedNotes.toId
+    sharedNotes ON users.userId = sharedNotes.toId OR users.userId = sharedNotes.fromId
 LEFT JOIN 
     notes AS sharedNote ON sharedNotes.noteSharedId = sharedNote.notesId
 	-- end joins
