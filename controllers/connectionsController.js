@@ -158,7 +158,7 @@ class ConController {
           return;
         }
         const remConQuery = conQueries[4];
-        const remCon = remConClient.query(remConQuery, [userid, conUserId]);
+        const remCon = remConClient.query(remConQuery, [userId, conUserId.userid]);
         if (remCon.rows.length < 1) {
           return resHandler.serverError(
             res,
