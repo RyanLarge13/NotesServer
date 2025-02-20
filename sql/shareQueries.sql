@@ -40,5 +40,10 @@ SELECT * FROM sharerequests
 WHERE reqToId = $1 AND reqFromId = $2 OR reqToId = $2 AND reqFromId = $1 AND noteToShareId = $3;
 
 -- 9 Check if a note is being shared to a user
-SELECT sharednoteid FROM sharednotes 
-WHERE noteSharedId = $1 AND toId = $2;
+SELECT * FROM sharednotes 
+WHERE noteSharedId = $1 AND 
+(toId = $2 OR fromId = $2);
+
+-- 10
+SELECT * FROM notes 
+WHERE notesid = $1;

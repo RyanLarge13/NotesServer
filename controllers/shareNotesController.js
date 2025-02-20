@@ -318,10 +318,37 @@ class ShareController {
             "We had an issue creating the new connection for sharing this note. Please try again, and if the issue persists, contact the developer at rynalarge@ryanlareg.dev"
           );
         }
+        const note = await shareClient.query(shareQueries[10], [
+          existingReq.data.notetoshareid,
+        ]);
+
+        console.log(note.rows);
+
+        if (!note.rows[0]) {
+          return resHandler.badRequestError(
+            res,
+            "There was a problem with accepting this note for sharing. Please contact the developer immediately"
+          );
+        }
+
+        const returnNote = note.rows[0];
         return resHandler.successCreate(
           res,
           "You and your connection can now successfully collaborate on this note",
-          newShare.rows[0]
+          {
+            title: returnNote.title,
+            noteid: returnNote.notesid,
+            locked: returnNote.locked,
+            htmlText: returnNote.htmlnotes,
+            folderId: returnNote.folderid,
+            createdAt: returnNote.createdat,
+            updated: returnNote.updated,
+            trashed: returnNote.trashed,
+            favorite: returnNote.favorite,
+            isNew: false,
+            from: existingReq.data.reqfromid,
+            to: existingReq.data.reqtoid,
+          }
         );
       } catch (err) {
         console.log(err);
